@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunpan.mappers.DownloadFileMapper">
+
+    <!-- 实体映射 -->
+    <resultMap id="base_result_map" type="com.yunpan.entity.po.DownloadFile">
+        <!-- 下载记录ID -->
+        <result column="download_id" property="downloadId"/>
+        <!-- 分享ID -->
+        <result column="share_id" property="shareId"/>
+        <!-- 文件ID -->
+        <result column="file_id" property="fileId"/>
+        <!-- 下载用户ID -->
+        <result column="user_id" property="userId"/>
+        <!-- 下载时间 -->
+        <result column="download_time" property="downloadTime"/>
+    </resultMap>
+
+    <resultMap id="base_result_map_2" type="com.yunpan.entity.vo.DownloadFileVO">
+        <!--  -->
+        <result column="nickName" property="userName"/>
+        <!--  -->
+        <result column="qqAvatar" property="avatar"/>
+        <!--  -->
+        <result column="downloadTime" property="downloadTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="base_column_list">
+        download_id, share_id, file_id, user_id, download_time
+    </sql>
+
+    <!-- 基础查询条件 -->
+    <sql id="base_query_condition">
+        <if test="query.downloadId != null and query.downloadId != ''">
+            and download_id = #{query.downloadId}
+        </if>
+        <if test="query.shareId != null and query.shareId != ''">
+            and share_id = #{query.shareId}
+        </if>
+        <if test="query.fileId != null and query.fileId != ''">
+            and file_id = #{query.fileId}
+        </if>
+        <if test="query.userId != null and query.userId != ''">
+            and user_id = #{query.userId}
+        </if>
+        <if test="query.downloadTime != null">
+            and download_time = #{query.downloadTime}
+        </if>
+    </sql>
+
+    <!-- 通用的查询条件 -->
+    <sql id="query_condition">
+        <where>
+            <include refid="base_query_condition"/>
+        </where>
+    </sql>
+
+    <!-- 查询列表 -->
+    <select id="selectList" resultMap="base_result_map">
+        SELECT
+        <include refid="base_column_list"/>
+        FROM file_download
+        <include refid="query_condition"/>
+        <if test="query.orderBy != null">
+            order by ${query.orderBy}
+        </if>
+        <if test="query.simplePage != null">
+            limit #{query.simplePage.start}, #{query.simplePage.end}
+        </if>
+    </select>
+
+    <!-- 查询数量 -->
+    <select id="selectCount" resultType="java.lang.Integer">
+        SELECT count(1) FROM file_download
+        <include refid="query_condition"/>
+    </select>
+
+    <!-- 插入 (匹配有值字段) -->
+    <insert id="insert" parameterType="com.yunpan.entity.po.DownloadFile">
+        INSERT INTO file_download
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bean.downloadId != null">
+                download_id,
+            </if>
+            <if test="bean.shareId != null">
+                share_id,
+            </if>
+            <if test="bean.fileId != null">
+                file_id,
+            </if>
+            <if test="bean.userId != null">
+                user_id,
+            </if>
+            <if test="bean.downloadTime != null">
+                download_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bean.downloadId != null">
+                #{bean.downloadId},
+            </if>
+            <if test="bean.shareId != null">
+                #{bean.shareId},
+            </if>
+            <if test="bean.fileId != null">
+                #{bean.fileId},
+            </if>
+            <if test="bean.userId != null">
+                #{bean.userId},
+            </if>
+            <if test="bean.downloadTime != null">
+                #{bean.downloadTime},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 根据ID修改 -->
+    <update id="updateById" parameterType="com.yunpan.entity.po.DownloadFile">
+        UPDATE file_download
+        <set>
+            <if test="bean.shareId != null">
+                share_id = #{bean.shareId},
+            </if>
+            <if test="bean.fileId != null">
+                file_id = #{bean.fileId},
+            </if>
+            <if test="bean.userId != null">
+                user_id = #{bean.userId},
+            </if>
+            <if test="bean.downloadTime != null">
+                download_time = #{bean.downloadTime},
+            </if>
+        </set>
+        WHERE download_id = #{bean.downloadId}
+    </update>
+
+    <!-- 根据ID删除 -->
+    <delete id="deleteById">
+        DELETE FROM file_download WHERE download_id = #{downloadId}
+    </delete>
+
+    <select id="selectDownloadFileByUserInfo" resultMap="base_result_map_2">
+        SELECT
+            u.nick_name AS nickName,
+            u.qq_avatar AS qqAvatar,
+            fd.download_time AS downloadTime
+        FROM
+            file_download fd
+                INNER JOIN
+            user_info u
+            ON
+                fd.user_id = u.user_id
+        <if test="query.orderBy != null">
+            order by ${query.orderBy}
+        </if>
+        <if test="query.simplePage != null">
+            limit #{query.simplePage.start}, #{query.simplePage.end}
+        </if>
+    </select>
+
+</mapper>

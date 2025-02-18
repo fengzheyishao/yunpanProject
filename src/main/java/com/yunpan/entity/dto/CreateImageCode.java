@@ -47,7 +47,7 @@ public class CreateImageCode {
         bfimg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics g = bfimg.getGraphics();
 
-        g.setColor(Color.cyan);
+        g.setColor(getRandColor(1, 255));
         g.fillRect(0, 0, width, height);
         Font font = new Font("Fixedays", Font.BOLD, fontHight);
         g.setFont(font);
@@ -57,7 +57,7 @@ public class CreateImageCode {
             int ys = random.nextInt(height);
             int xe = xs + random.nextInt(width);
             int ye = ys + random.nextInt(height);
-            g.setColor(getRandColor(1, 2515));
+            g.setColor(getRandColor(1, 255));
             g.drawLine(xs, ys, xe, ye);
         }
 

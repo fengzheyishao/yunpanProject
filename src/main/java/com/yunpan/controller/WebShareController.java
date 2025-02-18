@@ -5,17 +5,17 @@ import com.yunpan.annotation.VerifyParam;
 import com.yunpan.entity.constants.Constants;
 import com.yunpan.entity.dto.SessionShareDto;
 import com.yunpan.entity.dto.SessionWebUserDto;
+import com.yunpan.entity.po.DownloadFile;
 import com.yunpan.entity.po.FileInfo;
 import com.yunpan.entity.po.FileShare;
 import com.yunpan.entity.po.UserInfo;
+import com.yunpan.entity.query.DownloadFileQuery;
 import com.yunpan.entity.query.FileInfoQuery;
-import com.yunpan.entity.vo.FileInfoVO;
-import com.yunpan.entity.vo.PaginationResultVO;
-import com.yunpan.entity.vo.ResponseVO;
-import com.yunpan.entity.vo.ShareInfoVO;
+import com.yunpan.entity.vo.*;
 import com.yunpan.enums.FileDelFlagEnums;
 import com.yunpan.enums.ResponseCodeEnum;
 import com.yunpan.exception.BusinessException;
+import com.yunpan.service.DownloadFileService;
 import com.yunpan.service.FileInfoService;
 import com.yunpan.service.FileShareService;
 import com.yunpan.service.UserInfoService;
@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
+import java.util.List;
 
 @RestController("webShareController")
 @RequestMapping("/showShare")
@@ -41,6 +42,8 @@ public class WebShareController extends CommonFileController{
     private FileInfoService fileInfoService;
     @Resource
     private UserInfoService userInfoService;
+    @Resource
+    private DownloadFileService downloadFileService;
 
     @RequestMapping("/getShareLoginInfo")
     @GlobalInterceptor(checkParams = true, checkLogin = false)
@@ -88,6 +91,21 @@ public class WebShareController extends CommonFileController{
         query.setDelFlag(FileDelFlagEnums.USING.getFlag());
         PaginationResultVO resultVO = fileInfoService.findListByPage(query);
         return getSuccessResponseVO(convert2PaginationVO(resultVO, FileInfoVO.class));
+    }
+
+    @RequestMapping("/shareDownloadInfo")
+    public ResponseVO shareDownloadInfo(HttpSession session, DownloadFileQuery query) {
+        SessionWebUserDto sessionWebUserDto = getUserInfoFromSession(session);
+        FileShare fileShare = fileShareService.getFileShareByShareId(query.getShareId());
+        if (fileShare == null) {
+            throw new BusinessException("未找到分享ID");
+        } else if (!sessionWebUserDto.getIsAdmin() && !sessionWebUserDto.getUserId().equals(fileShare.getUserId())) {
+            throw new BusinessException("不是本人查询");
+        }
+
+        query.setOrderBy("downloadTime desc");
+        PaginationResultVO paginationResultVO = downloadFileService.findListByPage(query);
+        return getSuccessResponseVO(paginationResultVO);
     }
 
     private ShareInfoVO getShareInfoCommon(String shareId) {
@@ -163,7 +181,9 @@ public class WebShareController extends CommonFileController{
     public ResponseVO createDownloadUrl(HttpSession session,
                              @PathVariable("shareId")String shareId,
                              @PathVariable("fileId")String fileId) {
+        SessionWebUserDto sessionWebUserDto = getUserInfoFromSession(session);
         SessionShareDto sessionShareDto = checkShare(session, shareId);
+        downloadFileService.add(shareId, fileId, sessionWebUserDto);
         return super.createDownloadUrl(fileId, sessionShareDto.getShareUserId());
     }
 
