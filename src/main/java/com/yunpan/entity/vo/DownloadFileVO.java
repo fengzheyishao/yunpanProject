@@ -14,6 +14,16 @@ public class DownloadFileVO {
 
     private String avatar;
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    private String userId;
+
     public String getUserName() {
         return userName;
     }

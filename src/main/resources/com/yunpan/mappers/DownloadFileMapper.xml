@@ -24,6 +24,8 @@
         <result column="qqAvatar" property="avatar"/>
         <!--  -->
         <result column="downloadTime" property="downloadTime"/>
+        <!-- -->
+        <result column="userId" property="userId"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -145,6 +147,7 @@
         SELECT
             u.nick_name AS nickName,
             u.qq_avatar AS qqAvatar,
+            u.user_id AS userId,
             fd.download_time AS downloadTime
         FROM
             file_download fd

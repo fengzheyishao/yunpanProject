@@ -9,14 +9,17 @@ import com.yunpan.entity.dto.SysSettingsDto;
 import com.yunpan.entity.dto.UserSpaceDto;
 import com.yunpan.entity.po.FileInfo;
 import com.yunpan.entity.po.UserInfo;
+import com.yunpan.entity.po.UserLoginInfo;
 import com.yunpan.entity.query.FileInfoQuery;
 import com.yunpan.entity.query.SimplePage;
 import com.yunpan.entity.query.UserInfoQuery;
+import com.yunpan.entity.query.UserLoginInfoQuery;
 import com.yunpan.enums.PageSize;
 import com.yunpan.enums.UserStatusEnum;
 import com.yunpan.exception.BusinessException;
 import com.yunpan.mappers.FileInfoMapper;
 import com.yunpan.mappers.UserInfoMapper;
+import com.yunpan.mappers.UserLoginInfoMapper;
 import com.yunpan.service.EmailCodeService;
 import com.yunpan.service.UserInfoService;
 import com.yunpan.utils.JsonUtils;
@@ -50,6 +53,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 	private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
 	@Resource
 	private FileInfoMapper<FileInfo, FileInfoQuery> fileInfoMapper;
+	@Resource
+	private UserLoginInfoMapper<UserLoginInfo, UserLoginInfoQuery> userLoginInfoMapper;
 	@Resource
 	private EmailCodeService emailCodeService;
 	@Resource
@@ -245,7 +250,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public SessionWebUserDto login(String email, String password) {
+		Date date = new Date();
 		UserInfo userInfo = userInfoMapper.selectByEmail(email);
 		if (userInfo == null || !userInfo.getPassword().equals(password)) {
 			throw new BusinessException("账号或密码错误");
@@ -254,9 +261,27 @@ public class UserInfoServiceImpl implements UserInfoService {
 			throw new BusinessException("账号已被停用");
 		}
 		UserInfo updateInfo = new UserInfo();
-		updateInfo.setLastLoginTime(new Date());
+		updateInfo.setLastLoginTime(date);
 
 		this.userInfoMapper.updateByUserId(updateInfo, userInfo.getUserId());
+
+
+		// 登录信息
+		date.setHours(0);
+		date.setMinutes(0);
+		date.setSeconds(0);
+		UserLoginInfo userLoginInfo = this.userLoginInfoMapper.selectByUserIdAndLoginDate(userInfo.getUserId(), date);
+		if (userLoginInfo == null) {
+			userLoginInfo = new UserLoginInfo();
+			userLoginInfo.setLoginDate(date);
+			userLoginInfo.setUserId(userInfo.getUserId());
+			userLoginInfo.setLoginCount(1);
+			this.userLoginInfoMapper.insert(userLoginInfo);
+		} else {
+			this.userLoginInfoMapper.updateLoginCount(userLoginInfo.getId());
+		}
+
+
 		SessionWebUserDto sessionWebUserDto = new SessionWebUserDto();
 		sessionWebUserDto.setNickName(userInfo.getNickName());
 		sessionWebUserDto.setUserId(userInfo.getUserId());
