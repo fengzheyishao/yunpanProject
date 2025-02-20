@@ -6,6 +6,8 @@ import com.yunpan.entity.vo.PaginationResultVO;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 /**
  * @Description: 用户登录信息表Service
  * @auther: lnorly
@@ -72,5 +74,6 @@ public interface UserLoginInfoService {
 	 */
 	Integer deleteUserLoginInfoByUserIdAndLoginDate(String userId, Date loginDate);
 
+	Map<String, Long> selectMemoryAnalysisByUserId(String userId);
 
 }

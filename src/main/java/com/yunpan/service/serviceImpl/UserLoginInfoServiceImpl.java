@@ -1,8 +1,13 @@
 package com.yunpan.service.serviceImpl;
 
+import com.yunpan.entity.po.FileInfo;
+import com.yunpan.entity.po.UserInfo;
 import com.yunpan.entity.po.UserLoginInfo;
+import com.yunpan.entity.query.FileInfoQuery;
+import com.yunpan.entity.query.UserInfoQuery;
 import com.yunpan.entity.query.UserLoginInfoQuery;
 import com.yunpan.entity.query.SimplePage;
+import com.yunpan.mappers.FileInfoMapper;
 import com.yunpan.service.UserLoginInfoService;
 import com.yunpan.entity.vo.PaginationResultVO;
 import com.yunpan.mappers.UserLoginInfoMapper;
@@ -11,7 +16,9 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Description: 用户登录信息表ServiceImpl
@@ -23,6 +30,8 @@ public class UserLoginInfoServiceImpl implements UserLoginInfoService {
 
 	@Resource
 	private UserLoginInfoMapper<UserLoginInfo, UserLoginInfoQuery> userLoginInfoMapper;
+	@Resource
+	private FileInfoMapper<FileInfo, FileInfoQuery> fileInfoMapper;
 
 	/**
 	 * 根据条件查询列表
@@ -131,6 +140,27 @@ public class UserLoginInfoServiceImpl implements UserLoginInfoService {
 	@Override
 	public Integer deleteUserLoginInfoByUserIdAndLoginDate(String userId, Date loginDate) {
 		return this.userLoginInfoMapper.deleteByUserIdAndLoginDate(userId, loginDate);
+	}
+
+	@Override
+	public Map<String, Long> selectMemoryAnalysisByUserId(String userId) {
+		FileInfoQuery fileInfoQuery = new FileInfoQuery();
+		fileInfoQuery.setUserId(userId);
+		List<FileInfo> list = this.fileInfoMapper.selectList(fileInfoQuery);
+		// 1:视频 2:音频 3:图片 4:文档 5:其他
+		long[] l = new long[6];
+		for (FileInfo fileInfo: list) {
+			if (fileInfo.getFileCategory() != null) {
+				l[fileInfo.getFileCategory()] = l[fileInfo.getFileCategory()] + fileInfo.getFileSize();
+			}
+		}
+		Map<String, Long> map = new HashMap<>();
+		map.put("视频", l[1]);
+		map.put("音频", l[2]);
+		map.put("图片", l[3]);
+		map.put("文档", l[4]);
+		map.put("其他", l[5]);
+		return map;
 	}
 
 

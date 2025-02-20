@@ -42,10 +42,10 @@
 			and userIdFuzzy like concat('%', #{query.userIdFuzzy}, '%')
 		</if>
 		<if test="query.loginDateStart != null and query.loginDateStart !=''">
-			<![CDATA[ and login_date >= str_to_date(#{loginDateStart}, 'Y-%m-%d'), interval -1 day ]]>
+			<![CDATA[ and login_date >= str_to_date(#{loginDateStart}, '%Y-%m-%d'), interval -1 day ]]>
 		</if>
 		<if test="query.loginDateEnd != null and query.loginDateEnd !=''">
-			<![CDATA[ and login_date < date_sub(#{loginDateEnd}, 'Y-%m-%d') ]]>
+			<![CDATA[ and login_date < date_sub(#{loginDateEnd}, '%Y-%m-%d') ]]>
 		</if>
 	</sql>
 
@@ -205,7 +205,9 @@
 
 	<!-- 根据UserIdAndLoginDate查询 -->
 	<select id="selectByUserIdAndLoginDate" resultMap="base_result_map">
-		select <include refid="base_column_list"/> from user_login_info where user_id=#{userId} and login_date=#{loginDate}
+		select <include refid="base_column_list"/>
+		    from user_login_info
+		    where user_id=#{userId} and login_date = str_to_date(#{loginDate}, '%Y-%m-%d')
 	</select>
 
 	<!-- 根据Id修改 -->

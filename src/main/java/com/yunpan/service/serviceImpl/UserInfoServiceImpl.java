@@ -267,9 +267,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 
 		// 登录信息
-		date.setHours(0);
-		date.setMinutes(0);
-		date.setSeconds(0);
 		UserLoginInfo userLoginInfo = this.userLoginInfoMapper.selectByUserIdAndLoginDate(userInfo.getUserId(), date);
 		if (userLoginInfo == null) {
 			userLoginInfo = new UserLoginInfo();
@@ -285,6 +282,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 		SessionWebUserDto sessionWebUserDto = new SessionWebUserDto();
 		sessionWebUserDto.setNickName(userInfo.getNickName());
 		sessionWebUserDto.setUserId(userInfo.getUserId());
+		sessionWebUserDto.setJoinTime(userInfo.getJoinTime());
+		sessionWebUserDto.setLastLoginTime(userInfo.getLastLoginTime());
 
 		if (ArrayUtils.contains(appconfig.getAdminEmail().split(","), email)) {
 			sessionWebUserDto.setIsAdmin(true);
