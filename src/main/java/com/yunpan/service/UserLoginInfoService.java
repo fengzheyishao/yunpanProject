@@ -76,4 +76,6 @@ public interface UserLoginInfoService {
 
 	Map<String, Long> selectMemoryAnalysisByUserId(String userId);
 
+
+
 }

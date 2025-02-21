@@ -120,22 +120,22 @@
 			and file_path like concat('%', #{query.filePathFuzzy}, '%')
 		</if>
 		<if test="query.createTimeStart != null and query.createTimeStart !=''">
-			<![CDATA[ and create_time >= str_to_date(#{query.createTimeStart}, 'Y-%m-%d'), interval -1 day ]]>
+			<![CDATA[ and create_time >= str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
 		</if>
 		<if test="query.createTimeEnd != null and query.createTimeEnd !=''">
-			<![CDATA[ and create_time < date_sub(#{query.createTimeEnd}, 'Y-%m-%d') ]]>
+			<![CDATA[ and create_time < date_sub(#{query.createTimeEnd}, '%Y-%m-%d') + interval -1 day]]>
 		</if>
 		<if test="query.lastUpdateTimeStart != null and query.lastUpdateTimeStart !=''">
-			<![CDATA[ and last_update_time >= str_to_date(#{query.lastUpdateTimeStart}, 'Y-%m-%d'), interval -1 day ]]>
+			<![CDATA[ and last_update_time >= str_to_date(#{query.lastUpdateTimeStart}, '%Y-%m-%d')]]>
 		</if>
 		<if test="query.lastUpdateTimeEnd != null and query.lastUpdateTimeEnd !=''">
-			<![CDATA[ and last_update_time < date_sub(#{query.lastUpdateTimeEnd}, 'Y-%m-%d') ]]>
+			<![CDATA[ and last_update_time < str_to_date(#{query.lastUpdateTimeEnd}, '%Y-%m-%d')  + interval 1 day]]>
 		</if>
 		<if test="query.recoveryTimeStart != null and query.recoveryTimeStart !=''">
-			<![CDATA[ and recovery_time >= str_to_date(#{query.recoveryTimeStart}, 'Y-%m-%d'), interval -1 day ]]>
+			<![CDATA[ and recovery_time >= str_to_date(#{query.recoveryTimeStart}, '%Y-%m-%d')]]>
 		</if>
 		<if test="query.recoveryTimeEnd != null and query.recoveryTimeEnd !=''">
-			<![CDATA[ and recovery_time < date_sub(#{query.recoveryTimeEnd}, 'Y-%m-%d') ]]>
+			<![CDATA[ and recovery_time < str_to_date(#{query.recoveryTimeEnd}, '%Y-%m-%d') + interval 1 day]]>
 		</if>
 		 <if test="query.fileIdArray != null and query.fileIdArray.length">
 			 and file_id in(<foreach collection="query.fileIdArray" item="item" separator=",">
@@ -453,21 +453,21 @@
 			(#{item.file_id},#{item.user_id},#{item.file_md5},#{item.file_pid},#{item.file_size},#{item.file_name},#{item.file_cover},#{item.file_path},#{item.create_time},#{item.last_update_time},#{item.folder_type},#{item.file_category},#{item.file_type},#{item.status},#{item.recovery_time},#{item.del_flag})
 		</foreach>
 		on DUPLICATE key update
-		file_id = VALUES(file_id), 
-		user_id = VALUES(user_id), 
-		file_md5 = VALUES(file_md5), 
-		file_pid = VALUES(file_pid), 
-		file_size = VALUES(file_size), 
-		file_name = VALUES(file_name), 
-		file_cover = VALUES(file_cover), 
-		file_path = VALUES(file_path), 
-		create_time = VALUES(create_time), 
-		last_update_time = VALUES(last_update_time), 
-		folder_type = VALUES(folder_type), 
-		file_category = VALUES(file_category), 
-		file_type = VALUES(file_type), 
-		status = VALUES(status), 
-		recovery_time = VALUES(recovery_time), 
+		file_id = VALUES(file_id),
+		user_id = VALUES(user_id),
+		file_md5 = VALUES(file_md5),
+		file_pid = VALUES(file_pid),
+		file_size = VALUES(file_size),
+		file_name = VALUES(file_name),
+		file_cover = VALUES(file_cover),
+		file_path = VALUES(file_path),
+		create_time = VALUES(create_time),
+		last_update_time = VALUES(last_update_time),
+		folder_type = VALUES(folder_type),
+		file_category = VALUES(file_category),
+		file_type = VALUES(file_type),
+		status = VALUES(status),
+		recovery_time = VALUES(recovery_time),
 		del_flag = VALUES(del_flag)
 	</insert>
 

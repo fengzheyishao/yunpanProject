@@ -26,7 +26,7 @@
 			and id= #{query.id}
 		</if>
 		<if test="query.userId!= null and query.userId!=''">
-			and userId= #{query.userId}
+			and user_id= #{query.userId}
 		</if>
 		<if test="query.loginDate!= null ">
 			and loginDate= #{query.loginDate}
@@ -42,10 +42,10 @@
 			and userIdFuzzy like concat('%', #{query.userIdFuzzy}, '%')
 		</if>
 		<if test="query.loginDateStart != null and query.loginDateStart !=''">
-			<![CDATA[ and login_date >= str_to_date(#{loginDateStart}, '%Y-%m-%d'), interval -1 day ]]>
+			<![CDATA[ and login_date >= str_to_date(#{query.loginDateStart}, '%Y-%m-%d') ]]>
 		</if>
 		<if test="query.loginDateEnd != null and query.loginDateEnd !=''">
-			<![CDATA[ and login_date < date_sub(#{loginDateEnd}, '%Y-%m-%d') ]]>
+			<![CDATA[ and login_date < str_to_date(#{query.loginDateEnd}, '%Y-%m-%d')+ INTERVAL 1 DAY ]]>
 		</if>
 	</sql>
 

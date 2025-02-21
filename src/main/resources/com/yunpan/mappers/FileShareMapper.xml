@@ -78,16 +78,16 @@
 			and s.user_id like concat('%', #{query.userIdFuzzy}, '%')
 		</if>
 		<if test="query.expireTimeStart != null and query.expireTimeStart !=''">
-			<![CDATA[ and expire_time >= str_to_date(#{query.expireTimeStart}, 'Y-%m-%d'), interval -1 day ]]>
+			<![CDATA[ and expire_time >= str_to_date(#{query.expireTimeStart}, '%Y-%m-%d') ]]>
 		</if>
 		<if test="query.expireTimeEnd != null and query.expireTimeEnd !=''">
-			<![CDATA[ and expire_time < date_sub(#{query.expireTimeEnd}, 'Y-%m-%d') ]]>
+			<![CDATA[ and expire_time < str_to_date(#{query.expireTimeEnd}, '%Y-%m-%d') + interval 1 day ]]>
 		</if>
 		<if test="query.shareTimeStart != null and query.shareTimeStart !=''">
-			<![CDATA[ and share_time >= str_to_date(#{query.shareTimeStart}, 'Y-%m-%d'), interval -1 day ]]>
+			<![CDATA[ and share_time >= str_to_date(#{query.shareTimeStart}, '%Y-%m-%d')]]>
 		</if>
 		<if test="query.shareTimeEnd != null and query.shareTimeEnd !=''">
-			<![CDATA[ and share_time < date_sub(#{query.shareTimeEnd}, 'Y-%m-%d') ]]>
+			<![CDATA[ and share_time < str_to_date(#{query.shareTimeEnd}, '%Y-%m-%d') interval 1 day ]]>
 		</if>
 		<if test="query.codeFuzzy != null and query.codeFuzzy !=''">
 			and code like concat('%', #{query.codeFuzzy}, '%')
@@ -281,13 +281,13 @@
 			(#{item.share_id},#{item.file_id},#{item.user_id},#{item.valid_type},#{item.expire_time},#{item.share_time},#{item.code},#{item.show_count})
 		</foreach>
 		on DUPLICATE key update
-		share_id = VALUES(share_id), 
-		file_id = VALUES(file_id), 
-		user_id = VALUES(user_id), 
-		valid_type = VALUES(valid_type), 
-		expire_time = VALUES(expire_time), 
-		share_time = VALUES(share_time), 
-		code = VALUES(code), 
+		share_id = VALUES(share_id),
+		file_id = VALUES(file_id),
+		user_id = VALUES(user_id),
+		valid_type = VALUES(valid_type),
+		expire_time = VALUES(expire_time),
+		share_time = VALUES(share_time),
+		code = VALUES(code),
 		show_count = VALUES(show_count)
 	</insert>
 

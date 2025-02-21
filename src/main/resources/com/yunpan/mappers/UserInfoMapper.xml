@@ -92,16 +92,16 @@
 			and passwordFuzzy like concat('%', #{query.passwordFuzzy}, '%')
 		</if>
 		<if test="query.joinTimeStart != null and query.joinTimeStart !=''">
-			<![CDATA[ and join_time >= str_to_date(#{joinTimeStart}, 'Y-%m-%d'), interval -1 day ]]>
+			<![CDATA[ and join_time >= str_to_date(#{query.joinTimeStart}, '%Y-%m-%d')]]>
 		</if>
 		<if test="query.joinTimeEnd != null and query.joinTimeEnd !=''">
-			<![CDATA[ and join_time < date_sub(#{joinTimeEnd}, 'Y-%m-%d') ]]>
+			<![CDATA[ and join_time < str_to_date(#{query.joinTimeEnd}, '%Y-%m-%d') + interval 1 day ]]>
 		</if>
 		<if test="query.lastLoginTimeStart != null and query.lastLoginTimeStart !=''">
-			<![CDATA[ and last_login_time >= str_to_date(#{lastLoginTimeStart}, 'Y-%m-%d'), interval -1 day ]]>
+			<![CDATA[ and last_login_time >= str_to_date(#{query.lastLoginTimeStart}, '%Y-%m-%d')]]>
 		</if>
 		<if test="query.lastLoginTimeEnd != null and query.lastLoginTimeEnd !=''">
-			<![CDATA[ and last_login_time < date_sub(#{lastLoginTimeEnd}, 'Y-%m-%d') ]]>
+			<![CDATA[ and last_login_time < str_to_date(#{query.lastLoginTimeEnd}, '%Y-%m-%d') + interval 1 day]]>
 		</if>
 	</sql>
 
@@ -322,16 +322,16 @@
 			(#{item.user_id},#{item.nick_name},#{item.email},#{item.qq_open_id},#{item.qq_avatar},#{item.password},#{item.join_time},#{item.last_login_time},#{item.status},#{item.use_space},#{item.total_space})
 		</foreach>
 		on DUPLICATE key update
-		user_id = VALUES(user_id), 
-		nick_name = VALUES(nick_name), 
-		email = VALUES(email), 
-		qq_open_id = VALUES(qq_open_id), 
-		qq_avatar = VALUES(qq_avatar), 
-		password = VALUES(password), 
-		join_time = VALUES(join_time), 
-		last_login_time = VALUES(last_login_time), 
-		status = VALUES(status), 
-		use_space = VALUES(use_space), 
+		user_id = VALUES(user_id),
+		nick_name = VALUES(nick_name),
+		email = VALUES(email),
+		qq_open_id = VALUES(qq_open_id),
+		qq_avatar = VALUES(qq_avatar),
+		password = VALUES(password),
+		join_time = VALUES(join_time),
+		last_login_time = VALUES(last_login_time),
+		status = VALUES(status),
+		use_space = VALUES(use_space),
 		total_space = VALUES(total_space)
 	</insert>
 

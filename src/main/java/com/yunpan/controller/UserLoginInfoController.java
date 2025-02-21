@@ -127,4 +127,13 @@ public class UserLoginInfoController extends ABaseController {
 		response.setHeader("Cache-Control", "public, max-age=60");
 		return getSuccessResponseVO(map);
 	}
+
+	@RequestMapping("/getUserLoginInfoByUserIdAndTime")
+	public ResponseVO getUserLoginInfoByUserIdAndTime(HttpSession session, UserLoginInfoQuery userLoginInfoQuery) {
+		SessionWebUserDto sessionWebUserDto = getUserInfoFromSession(session);
+		String userId = sessionWebUserDto.getUserId();
+		userLoginInfoQuery.setUserId(userId);
+		List list = userLoginInfoService.findListByParam(userLoginInfoQuery);
+		return getSuccessResponseVO(list);
+	}
 }
