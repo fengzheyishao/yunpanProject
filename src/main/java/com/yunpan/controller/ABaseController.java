@@ -101,8 +101,8 @@ public class ABaseController {
         return (SessionWebUserDto) session.getAttribute(Constants.SESSION_KEY);
     }
 
-    protected SessionShareDto getShareInfoFromSession(HttpSession session) {
-        return (SessionShareDto) session.getAttribute(Constants.SESSION_SHARE_KEY);
+    protected SessionShareDto getShareInfoFromSession(HttpSession session, String shareId) {
+        return (SessionShareDto) session.getAttribute(Constants.SESSION_SHARE_KEY + shareId);
     }
 
     protected <S, T> PaginationResultVO<T> convert2PaginationVO(PaginationResultVO<S> pageVO, Class<T> classz) {
