@@ -12,6 +12,20 @@ public class SysSettingsDto implements Serializable {
 
     private Integer userInitUseSpace = 5;
 
+    private Integer signIn = 512;
+
+    private Long maxMemory = 204800L;
+
+    private String everySignInText = "恭喜你每日签到成功";
+
+    public String getEverySignInText() {
+        return everySignInText;
+    }
+
+    public void setEverySignInText(String everySignInText) {
+        this.everySignInText = everySignInText;
+    }
+
     public String getRegisterEmailTitle() {
         return registerEmailTitle;
     }
@@ -34,5 +48,21 @@ public class SysSettingsDto implements Serializable {
 
     public void setUserInitUseSpace(Integer userInitUseSpace) {
         this.userInitUseSpace = userInitUseSpace;
+    }
+
+    public Integer getSignIn() {
+        return signIn;
+    }
+
+    public void setSignIn(Integer signIn) {
+        this.signIn = signIn;
+    }
+
+    public Long getMaxMemory() {
+        return maxMemory;
+    }
+
+    public void setMaxMemory(Long maxMemory) {
+        this.maxMemory = maxMemory;
     }
 }

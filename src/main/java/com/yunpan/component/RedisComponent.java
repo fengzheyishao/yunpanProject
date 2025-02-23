@@ -2,17 +2,19 @@ package com.yunpan.component;
 
 import com.yunpan.entity.constants.Constants;
 import com.yunpan.entity.dto.DownloadFileDto;
+import com.yunpan.entity.dto.FileTipDto;
 import com.yunpan.entity.dto.SysSettingsDto;
 import com.yunpan.entity.dto.UserSpaceDto;
-import com.yunpan.entity.po.FileInfo;
-import com.yunpan.entity.po.UserInfo;
-import com.yunpan.entity.query.FileInfoQuery;
-import com.yunpan.entity.query.UserInfoQuery;
-import com.yunpan.mappers.FileInfoMapper;
-import com.yunpan.mappers.UserInfoMapper;
+import com.yunpan.entity.po.*;
+import com.yunpan.entity.query.*;
+import com.yunpan.enums.DateTimePatternEnum;
+import com.yunpan.mappers.*;
+import com.yunpan.utils.DateUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Date;
+import java.util.List;
 
 @Component("redisComponent")
 public class RedisComponent {
@@ -22,6 +24,11 @@ public class RedisComponent {
     private FileInfoMapper<FileInfo, FileInfoQuery> fileInfoMapper;
     @Resource
     private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
+    @Resource
+    private FileShareMapper<FileShare, FileShareQuery> fileShareMapper;
+    @Resource
+    private DownloadFileMapper<DownloadFile, DownloadFileQuery> downloadFileMapper;
+
     public SysSettingsDto getSysSettingsDto() {
         SysSettingsDto sysSettingsDto = (SysSettingsDto) redisUtils.get(Constants.REDIS_KEY_SYS_SETTING);
         if (sysSettingsDto == null) {
@@ -91,5 +98,46 @@ public class RedisComponent {
 
     public DownloadFileDto getDownloadCode(String code) {
         return (DownloadFileDto) redisUtils.get(code);
+    }
+
+    public void saveYesterDayCount(String code, FileTipDto fileTipDto) {
+        redisUtils.setex(code, fileTipDto, Constants.REDIS_EXPIRE_TIME_FIVE_MIN);
+    }
+
+    public FileTipDto getYesterDayCount(String userId) {
+        FileTipDto fileTipDto = (FileTipDto) redisUtils.get(Constants.REDIS_KEY_USER_YESTERDAY_COUNT + userId);
+
+        if (fileTipDto == null) {
+            fileTipDto = findFileTipDtoByTime(-1, userId);
+            redisUtils.set(Constants.REDIS_KEY_USER_YESTERDAY_COUNT + userId, fileTipDto);
+        }
+        return fileTipDto;
+    }
+
+    public FileTipDto findFileTipDtoByTime(int day, String userId) {
+        Date date = DateUtils.getDateZero(day);
+        String time = DateUtils.format(date, DateTimePatternEnum.YYYY_MM_DD.getPattern());
+        FileTipDto fileTipDto = new FileTipDto();
+        FileInfoQuery fileInfoQuery = new FileInfoQuery();
+        fileInfoQuery.setUserId(userId);
+        fileInfoQuery.setCreateTimeStart(time);
+        fileInfoQuery.setCreateTimeEnd(time);
+        fileTipDto.setFileYesCount(fileInfoMapper.selectCount(fileInfoQuery));
+        FileShareQuery fileShareQuery = new FileShareQuery();
+        fileShareQuery.setUserId(userId);
+        fileShareQuery.setShareTimeStart(time);
+        fileShareQuery.setShareTimeEnd(time);
+        List<FileShare> fileShareList = fileShareMapper.selectList(fileShareQuery);
+        Integer showCount = 0;
+        for (FileShare fileShare: fileShareList) {
+            showCount += fileShare.getShowCount();
+        }
+        fileTipDto.setShowCountYesCount(showCount);
+        DownloadFileQuery downloadFileQuery = new DownloadFileQuery();
+        downloadFileQuery.setUserId(userId);
+        downloadFileQuery.setDownloadTimeStart(time);
+        downloadFileQuery.setDownloadTimeEnd(time);
+        fileTipDto.setDownLoadYesCount(downloadFileMapper.selectCount(downloadFileQuery));
+        return fileTipDto;
     }
 }

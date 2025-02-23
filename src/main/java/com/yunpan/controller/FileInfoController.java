@@ -7,6 +7,7 @@ import com.yunpan.entity.dto.UploadResultDto;
 import com.yunpan.entity.po.FileInfo;
 import com.yunpan.entity.query.FileInfoQuery;
 import com.yunpan.entity.vo.FileInfoVO;
+import com.yunpan.entity.vo.FileTipVO;
 import com.yunpan.entity.vo.PaginationResultVO;
 import com.yunpan.entity.vo.ResponseVO;
 import com.yunpan.enums.FileCategoryEnums;
@@ -175,5 +176,13 @@ public class FileInfoController extends CommonFileController {
 		String userId = sessionWebUserDto.getUserId();
 		fileInfoService.removeFile2RecycleBatch(userId, fileIds);
 		return getSuccessResponseVO(null);
+	}
+
+	@RequestMapping("/getFileTipInfo")
+	public ResponseVO getFileTipInfo(HttpSession session) {
+		SessionWebUserDto sessionWebUserDto = getUserInfoFromSession(session);
+		String userId = sessionWebUserDto.getUserId();
+		FileTipVO fileTipVO = this.fileInfoService.getFileTipInfoByUserId(userId);
+		return getSuccessResponseVO(fileTipVO);
 	}
 }

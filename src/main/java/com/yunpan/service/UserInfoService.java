@@ -112,4 +112,6 @@ public interface UserInfoService {
 	void updateUserStatus(String userId, Integer status);
 
 	void changeUserSpace(String userId, Integer changeSpace);
+
+	void resetNickname(String userId, String nickName);
 }

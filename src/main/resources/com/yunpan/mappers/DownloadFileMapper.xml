@@ -52,10 +52,21 @@
         </if>
     </sql>
 
+    <!--扩展的查询条件-->
+    <sql id="base_query_condition_extend">
+        <if test="query.downloadTimeStart != null and query.downloadTimeStart !=''">
+            <![CDATA[ and download_time >= str_to_date(#{query.downloadTimeStart}, '%Y-%m-%d')]]>
+        </if>
+        <if test="query.downloadTimeEnd != null and query.downloadTimeEnd !=''">
+            <![CDATA[ and download_time < str_to_date(#{query.downloadTimeEnd}, '%Y-%m-%d') + interval 1 day]]>
+        </if>
+    </sql>
+
     <!-- 通用的查询条件 -->
     <sql id="query_condition">
         <where>
             <include refid="base_query_condition"/>
+            <include refid="base_query_condition_extend"/>
         </where>
     </sql>
 

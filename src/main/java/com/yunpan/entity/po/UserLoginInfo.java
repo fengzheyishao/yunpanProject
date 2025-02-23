@@ -36,8 +36,23 @@ public class UserLoginInfo implements Serializable {
 	 */
 	private Integer loginCount;
 
+	/**
+	 * 最后登录时间
+	 */
+	@JsonFormat(pattern = "yyyy-MM-dd HH-mm-ss", timezone = "GMT-8")
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private Date loginLastDate;
+
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public Date getLoginLastDate() {
+		return loginLastDate;
+	}
+
+	public void setLoginLastDate(Date loginLastDate) {
+		this.loginLastDate = loginLastDate;
 	}
 
 	public Long getId () {

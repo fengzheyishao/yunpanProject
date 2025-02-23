@@ -268,14 +268,18 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 		// 登录信息
 		UserLoginInfo userLoginInfo = this.userLoginInfoMapper.selectByUserIdAndLoginDate(userInfo.getUserId(), date);
+
 		if (userLoginInfo == null) {
 			userLoginInfo = new UserLoginInfo();
+			userLoginInfo.setLoginLastDate(date);
 			userLoginInfo.setLoginDate(date);
 			userLoginInfo.setUserId(userInfo.getUserId());
 			userLoginInfo.setLoginCount(1);
 			this.userLoginInfoMapper.insert(userLoginInfo);
 		} else {
-			this.userLoginInfoMapper.updateLoginCount(userLoginInfo.getId());
+			userLoginInfo.setLoginLastDate(date);
+			userLoginInfo.setLoginCount(userLoginInfo.getLoginCount()+1);
+			this.userLoginInfoMapper.updateById(userLoginInfo, userLoginInfo.getId());
 		}
 
 
@@ -453,5 +457,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 		this.userInfoMapper.updateUserSpace(userId, null, space);
 		redisComponent.resetUserSpaceUse(userId);
 
+	}
+
+	@Override
+	public void resetNickname(String userId, String nickName) {
+		UserInfo userInfo = this.userInfoMapper.selectByNickName(nickName);
+		if (userInfo != null) {
+			throw new BusinessException("用户名已经存在");
+		}
+		UserInfo userInfo2 = new UserInfo();
+		userInfo2.setNickName(nickName);
+		this.userInfoMapper.updateByUserId(userInfo2, userId);
 	}
 }

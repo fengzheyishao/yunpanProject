@@ -13,6 +13,8 @@
 		<result column="login_date" property="loginDate"/>
 		<!--登录次数-->
 		<result column="login_count" property="loginCount"/>
+		<!--最后登录时间-->
+		<result column="login_last_date" property="loginLastDate"/>
 	</resultMap>
 
 	<!--通用查询结果列 -->
@@ -29,10 +31,13 @@
 			and user_id= #{query.userId}
 		</if>
 		<if test="query.loginDate!= null ">
-			and loginDate= #{query.loginDate}
+			and login_date= #{query.loginDate}
 		</if>
 		<if test="query.loginCount!= null ">
-			and loginCount= #{query.loginCount}
+			and login_count= #{query.loginCount}
+		</if>
+		<if test="query.loginLastDate!= null ">
+			and login_last_date= #{loginLastDate}
 		</if>
 	</sql>
 
@@ -96,6 +101,9 @@
 			<if test="bean.loginCount != null">
 				login_count,
 			</if>
+			<if test="bean.loginLastDate!= null ">
+				login_last_date,
+			</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="bean.id != null">
@@ -109,6 +117,9 @@
 			</if>
 			<if test="bean.loginCount != null">
 				#{bean.loginCount},
+			</if>
+			<if test="bean.loginLastDate != null">
+				#{bean.loginLastDate},
 			</if>
 		</trim>
 	</insert>
@@ -129,6 +140,9 @@
 			<if test="bean.loginCount != null">
 				login_count,
 			</if>
+			<if test="bean.loginLastDate!= null ">
+				login_last_date,
+			</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="bean.id != null">
@@ -142,6 +156,9 @@
 			</if>
 			<if test="bean.loginCount != null">
 				#{bean.loginCount},
+			</if>
+			<if test="bean.loginLastDate != null">
+				#{bean.loginLastDate},
 			</if>
 		</trim>
 		on DUPLICATE key update
@@ -164,13 +181,14 @@
 	<insert id="insertOrUpdateBatch" parameterType="com.yunpan.entity.po.UserLoginInfo" >
 		INSERT INTO user_login_info(user_id,login_date,login_count) values
 		<foreach collection="list" item="item" separator="," >
-			(#{item.user_id},#{item.login_date},#{item.login_count})
+			(#{item.user_id},#{item.login_date},#{item.login_count},#{item.login_last_date})
 		</foreach>
 		on DUPLICATE key update
 		id = VALUES(id),
 		user_id = VALUES(user_id),
 		login_date = VALUES(login_date),
-		login_count = VALUES(login_count)
+		login_count = VALUES(login_count),
+		login_last_date = VALUES(login_last_date)
 	</insert>
 
 	<!-- 根据Id查询 -->
@@ -193,6 +211,9 @@
 			</if>
 			<if test="bean.loginCount!=null">
 				login_count = #{bean.loginCount},
+			</if>
+			<if test="bean.loginLastDate != null">
+				login_last_date = #{bean.loginLastDate},
 			</if>
 		</set>
 		where id=#{id}
@@ -225,6 +246,9 @@
 			</if>
 			<if test="bean.loginCount!=null">
 				login_count = #{bean.loginCount},
+			</if>
+			<if test="bean.loginLastDate != null">
+				login_last_date = #{bean.loginLastDate},
 			</if>
 		</set>
 		where user_id=#{userId} and login_date=#{loginDate}

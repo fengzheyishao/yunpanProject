@@ -50,4 +50,16 @@ public class DateUtils {
         calendar.add(Calendar.DAY_OF_YEAR, day);
         return calendar.getTime();
     }
+
+    public static Date getDateZero(Integer day) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, day);
+
+        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        return calendar.getTime();
+    }
 }

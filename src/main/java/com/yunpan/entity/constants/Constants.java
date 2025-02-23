@@ -24,6 +24,7 @@ public class Constants {
     public static final String CHECK_CODE_KEY_EMAIL = "check_code_key_email";
     public static final String REDIS_KEY_SYS_SETTING = "yunpan:syssetting:";
     public static final String REDIS_KEY_USER_SPACE_USE = "yunpan:user:spaceuse:";
+    public static final String REDIS_KEY_USER_YESTERDAY_COUNT = "yunpan:user:yesterdaycount:";
     public static final String REDIS_KEY_DOWNLOAD = "yunpan:download:";
     public static final Integer REDIS_EXPIRE_TIME_ONE_MIN = 60;
     public static final Integer REDIS_EXPIRE_TIME_FIVE_MIN = REDIS_EXPIRE_TIME_ONE_MIN * 5;

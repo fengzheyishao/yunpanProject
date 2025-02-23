@@ -123,7 +123,7 @@
 			<![CDATA[ and create_time >= str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
 		</if>
 		<if test="query.createTimeEnd != null and query.createTimeEnd !=''">
-			<![CDATA[ and create_time < date_sub(#{query.createTimeEnd}, '%Y-%m-%d') + interval -1 day]]>
+			<![CDATA[ and create_time < str_to_date(#{query.createTimeEnd}, '%Y-%m-%d') + interval 1 day]]>
 		</if>
 		<if test="query.lastUpdateTimeStart != null and query.lastUpdateTimeStart !=''">
 			<![CDATA[ and last_update_time >= str_to_date(#{query.lastUpdateTimeStart}, '%Y-%m-%d')]]>

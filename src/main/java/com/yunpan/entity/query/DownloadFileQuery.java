@@ -20,7 +20,27 @@ public class DownloadFileQuery extends BaseParam {
      */
     private String userId;
 
+    private String downloadTimeStart;
+
+    private String downloadTimeEnd;
+
     private Date downloadTime;
+
+    public String getDownloadTimeStart() {
+        return downloadTimeStart;
+    }
+
+    public void setDownloadTimeStart(String downloadTimeStart) {
+        this.downloadTimeStart = downloadTimeStart;
+    }
+
+    public String getDownloadTimeEnd() {
+        return downloadTimeEnd;
+    }
+
+    public void setDownloadTimeEnd(String downloadTimeEnd) {
+        this.downloadTimeEnd = downloadTimeEnd;
+    }
 
     public String getDownloadId() {
         return downloadId;

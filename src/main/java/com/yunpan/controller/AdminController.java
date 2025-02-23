@@ -42,11 +42,15 @@ public class AdminController extends CommonFileController{
     @GlobalInterceptor(checkParams = true, checkAdmin = true)
     public ResponseVO saveSysSettings(@VerifyParam(required = true) String registerEmailTitle,
                                       @VerifyParam(required = true) String registerEmailContent,
-                                      @VerifyParam(required = true) Integer userInitUseSpace) {
+                                      @VerifyParam(required = true) Long maxMemory,
+                                      @VerifyParam(required = true) Integer signIn,
+                                      @VerifyParam(required = true) String everySignInText) {
         SysSettingsDto sysSettingsDto = new SysSettingsDto();
         sysSettingsDto.setRegisterEmailTitle(registerEmailTitle);
         sysSettingsDto.setRegisterEmailContent(registerEmailContent);
-        sysSettingsDto.setUserInitUseSpace(userInitUseSpace);
+        sysSettingsDto.setSignIn(signIn);
+        sysSettingsDto.setMaxMemory(maxMemory);
+        sysSettingsDto.setEverySignInText(everySignInText);
         redisComponent.saveSysSettingsDto(sysSettingsDto);
         return getSuccessResponseVO(null);
     }
@@ -132,5 +136,6 @@ public class AdminController extends CommonFileController{
         }
         return getSuccessResponseVO(null);
     }
+
 
 }

@@ -42,6 +42,16 @@ public class FileShareController extends ABaseController {
 		return getSuccessResponseVO(resultVO);
 	}
 
+	@RequestMapping("/loadExpireShareList")
+	public ResponseVO loadExpireShareList(HttpSession session, String expireTimeEnd) {
+		FileShareQuery query = new FileShareQuery();
+		query.setUserId(getUserInfoFromSession(session).getUserId());
+		query.setQueryFileName(true);
+		query.setExpireTimeEnd(expireTimeEnd);
+		query.setOrderBy("expire_time desc");
+		PaginationResultVO resultVO = fileShareService.findListByPage(query);
+		return getSuccessResponseVO(resultVO);
+	}
 
 	@RequestMapping("/shareFile")
 	@GlobalInterceptor(checkParams = true)

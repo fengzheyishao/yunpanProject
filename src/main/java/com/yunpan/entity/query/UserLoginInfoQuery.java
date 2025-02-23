@@ -30,6 +30,16 @@ public class UserLoginInfoQuery extends BaseParam{
 
 	private String loginDateEnd;
 
+	private Date loginLastDate;
+
+	public Date getLoginLastDate() {
+		return loginLastDate;
+	}
+
+	public void setLoginLastDate(Date loginLastDate) {
+		this.loginLastDate = loginLastDate;
+	}
+
 	/**
 	 * 登录次数
 	 */

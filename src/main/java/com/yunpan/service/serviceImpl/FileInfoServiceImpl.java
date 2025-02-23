@@ -3,18 +3,22 @@ package com.yunpan.service.serviceImpl;
 import com.yunpan.component.RedisComponent;
 import com.yunpan.entity.config.Appconfig;
 import com.yunpan.entity.constants.Constants;
+import com.yunpan.entity.dto.FileTipDto;
 import com.yunpan.entity.dto.SessionWebUserDto;
 import com.yunpan.entity.dto.UploadResultDto;
 import com.yunpan.entity.dto.UserSpaceDto;
+import com.yunpan.entity.po.DownloadFile;
 import com.yunpan.entity.po.FileInfo;
+import com.yunpan.entity.po.FileShare;
 import com.yunpan.entity.po.UserInfo;
-import com.yunpan.entity.query.FileInfoQuery;
-import com.yunpan.entity.query.SimplePage;
-import com.yunpan.entity.query.UserInfoQuery;
+import com.yunpan.entity.query.*;
+import com.yunpan.entity.vo.FileTipVO;
 import com.yunpan.entity.vo.PaginationResultVO;
 import com.yunpan.enums.*;
 import com.yunpan.exception.BusinessException;
+import com.yunpan.mappers.DownloadFileMapper;
 import com.yunpan.mappers.FileInfoMapper;
+import com.yunpan.mappers.FileShareMapper;
 import com.yunpan.mappers.UserInfoMapper;
 import com.yunpan.service.FileInfoService;
 import com.yunpan.utils.DateUtils;
@@ -37,6 +41,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -53,6 +58,10 @@ public class FileInfoServiceImpl implements FileInfoService {
 	private FileInfoMapper<FileInfo, FileInfoQuery> fileInfoMapper;
 	@Resource
 	private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
+	@Resource
+	private DownloadFileMapper<DownloadFile, DownloadFileQuery> downloadFileMapper;
+	@Resource
+	private FileShareMapper<FileShare, FileShareQuery> fileShareMapper;
 	@Resource
 	private RedisComponent redisComponent;
 	@Resource
@@ -697,6 +706,35 @@ public class FileInfoServiceImpl implements FileInfoService {
 			findAllSubFile(copyFileList, item, shareUserId, currentUserId, curDate, myFolderId);
 		}
 
+	}
+
+	@Override
+	public FileTipVO getFileTipInfoByUserId(String userId) {
+		FileTipVO fileTipVO = new FileTipVO();
+		FileTipDto fileTipDtoYesterday = redisComponent.getYesterDayCount(userId);
+		FileTipDto fileTipDtoToday = redisComponent.findFileTipDtoByTime(0, userId);
+		fileTipVO.setFileYesCount(fileTipDtoYesterday.getFileYesCount());
+		fileTipVO.setDownLoadYesCount(fileTipDtoYesterday.getDownLoadYesCount());
+		fileTipVO.setShowCountYesCount(fileTipDtoYesterday.getShowCountYesCount());
+		fileTipVO.setFileCurCount(fileTipDtoToday.getFileYesCount());
+		fileTipVO.setDownLoadCurCount(fileTipDtoToday.getDownLoadYesCount());
+		fileTipVO.setShowCountCurCount(fileTipDtoToday.getShowCountYesCount());
+
+		FileInfoQuery fileInfoQuery = new FileInfoQuery();
+		fileInfoQuery.setUserId(userId);
+		fileTipVO.setAllFileCount(fileInfoMapper.selectCount(fileInfoQuery));
+		DownloadFileQuery downloadFileQuery = new DownloadFileQuery();
+		downloadFileQuery.setUserId(userId);
+		fileTipVO.setAllDownLoadCount(downloadFileMapper.selectCount(downloadFileQuery));
+		FileShareQuery fileShareQuery = new FileShareQuery();
+		fileShareQuery.setUserId(userId);
+		List<FileShare> fileShareList = fileShareMapper.selectList(fileShareQuery);
+		Integer showCount = 0;
+		for (FileShare fileShare: fileShareList) {
+			showCount += fileShare.getShowCount();
+		}
+		fileTipVO.setAllshowCount(showCount);
+		return fileTipVO;
 	}
 
 	private void findAllSubFile(List<FileInfo> copyFileList, FileInfo fileInfo, String sourceUserId,

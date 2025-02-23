@@ -271,4 +271,13 @@ public class UserInfoController extends ABaseController {
 
 		return getSuccessResponseVO(result);
 	}
+
+	@RequestMapping("/resetNickname")
+	public ResponseVO resetNickname(HttpSession session, @VerifyParam(required = true) String nickname) {
+		SessionWebUserDto sessionWebUserDto = getUserInfoFromSession(session);
+		userInfoService.resetNickname(sessionWebUserDto.getUserId(), nickname);
+		return getSuccessResponseVO(null);
+	}
+
+
 }

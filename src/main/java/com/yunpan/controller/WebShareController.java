@@ -49,7 +49,7 @@ public class WebShareController extends CommonFileController{
     @GlobalInterceptor(checkParams = true, checkLogin = false)
     public ResponseVO getShareLoginInfo(HttpSession session,
                                         @VerifyParam(required = true) String shareId) {
-        SessionShareDto sessionShareDto = getShareInfoFromSession(session);
+        SessionShareDto sessionShareDto = getShareInfoFromSession(session, shareId);
         if (sessionShareDto == null) {
             return getSuccessResponseVO(null);
         }
@@ -99,7 +99,9 @@ public class WebShareController extends CommonFileController{
         FileShare fileShare = fileShareService.getFileShareByShareId(query.getShareId());
         if (fileShare == null) {
             throw new BusinessException("未找到分享ID");
-        } else if (!sessionWebUserDto.getIsAdmin() && !sessionWebUserDto.getUserId().equals(fileShare.getUserId())) {
+        } else if (!sessionWebUserDto.getIsAdmin() &&
+                    !sessionWebUserDto.getIsAdmin() &&
+                    !sessionWebUserDto.getUserId().equals(fileShare.getUserId())) {
             throw new BusinessException("不是本人查询");
         }
 
@@ -132,12 +134,12 @@ public class WebShareController extends CommonFileController{
                                      @VerifyParam(required = true) String shareId,
                                      @VerifyParam(required = true) String code) {
         SessionShareDto sessionShareDto = fileShareService.checkShareCode(shareId, code);
-        session.setAttribute(Constants.SESSION_SHARE_KEY, sessionShareDto);
+        session.setAttribute(Constants.SESSION_SHARE_KEY + shareId, sessionShareDto);
         return getSuccessResponseVO(null);
     }
 
     private SessionShareDto checkShare(HttpSession session, String shareId) {
-        SessionShareDto sessionShareDto = getShareInfoFromSession(session);
+        SessionShareDto sessionShareDto = getShareInfoFromSession(session, shareId);
         if (sessionShareDto == null) {
             throw new BusinessException(ResponseCodeEnum.CODE_903.getMsg());
         }

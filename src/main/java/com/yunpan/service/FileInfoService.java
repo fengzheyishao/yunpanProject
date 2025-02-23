@@ -4,6 +4,7 @@ import com.yunpan.entity.dto.SessionWebUserDto;
 import com.yunpan.entity.dto.UploadResultDto;
 import com.yunpan.entity.po.FileInfo;
 import com.yunpan.entity.query.FileInfoQuery;
+import com.yunpan.entity.vo.FileTipVO;
 import com.yunpan.entity.vo.PaginationResultVO;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -77,4 +78,6 @@ public interface FileInfoService {
 
 	void saveShare(String shareRootFilePid, String shareFileIds, String myFolderId, String shareUserId,
 				   String currentUserId);
+
+	FileTipVO getFileTipInfoByUserId(String userId);
 }
