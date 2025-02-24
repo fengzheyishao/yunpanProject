@@ -42,4 +42,22 @@ public class RedisUtils<V> {
             return false;
         }
     }
+
+    public boolean setBit(String key, long bit) {
+        try {
+            redisTemplate.opsForValue().setBit(key, bit, true);
+            return true;
+        } catch (Exception e) {
+            logger.error("设置redisKey:{},value:{}失败", key, key);
+            return false;
+        }
+    }
+
+    public boolean getBit(String key, long bit) {
+        return key == null ? null : redisTemplate.opsForValue().getBit(key, bit);
+    }
+
+    public boolean delete(String key) {
+        return redisTemplate.delete(key);
+    }
 }

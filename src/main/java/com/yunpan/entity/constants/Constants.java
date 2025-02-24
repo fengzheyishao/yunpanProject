@@ -31,6 +31,7 @@ public class Constants {
     public static final Integer REDIS_KEY_EXPIRES_ONE_HOUR = 60*24;
     public static final Integer REDIS_EXPIRE_TIME_ONE_DAY = REDIS_EXPIRE_TIME_ONE_MIN*60*24;
     public static final String REDIS_KEY_USER_FILE_TEMP_SIZE = "yunpan:user:file:temp:";
+    public static final String REDIS_KEY_USER_SIGN_IN = "yunpan:user:sign:in:";
     public static final String VIEW_OBJ_RESULT_KEY = "result";
     public static final String TS_NAME = "index.ts";
     public static final String M3U8_NAME = "index.m3u8";

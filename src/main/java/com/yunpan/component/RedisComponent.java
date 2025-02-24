@@ -13,6 +13,7 @@ import com.yunpan.utils.DateUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -112,6 +113,22 @@ public class RedisComponent {
             redisUtils.set(Constants.REDIS_KEY_USER_YESTERDAY_COUNT + userId, fileTipDto);
         }
         return fileTipDto;
+    }
+
+    public boolean getSignInToday(String userId) {
+        LocalDate today = LocalDate.now();
+        int dayOfYear = today.getDayOfYear();
+        return redisUtils.getBit(Constants.REDIS_KEY_USER_SIGN_IN + userId, dayOfYear);
+    }
+
+    public boolean setSighInToday(String userId) {
+        LocalDate today = LocalDate.now();
+        int dayOfYear = today.getDayOfYear();
+        return redisUtils.setBit(Constants.REDIS_KEY_USER_SIGN_IN + userId, dayOfYear);
+    }
+
+    public boolean deleteKey(String key) {
+        return redisUtils.delete(key);
     }
 
     public FileTipDto findFileTipDtoByTime(int day, String userId) {

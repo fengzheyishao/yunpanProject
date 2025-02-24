@@ -7,12 +7,16 @@ import com.yunpan.entity.po.FileShare;
 import com.yunpan.entity.query.FileShareQuery;
 import com.yunpan.entity.vo.PaginationResultVO;
 import com.yunpan.entity.vo.ResponseVO;
+import com.yunpan.enums.DateTimePatternEnum;
+import com.yunpan.enums.ShareValidTypeEnums;
 import com.yunpan.service.FileShareService;
+import com.yunpan.utils.DateUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 
 /**
  * @Description: ServiceImpl
@@ -37,6 +41,7 @@ public class FileShareController extends ABaseController {
 		query.setPageNo(pageNo);
 		query.setQueryFileName(true);
 		query.setPageSize(pageSize);
+		query.setExpireTimeStart(DateUtils.format(new Date(), DateTimePatternEnum.YYYY_MM_DD.getPattern()));
 		query.setOrderBy("share_time desc");
 		PaginationResultVO resultVO = fileShareService.findListByPage(query);
 		return getSuccessResponseVO(resultVO);
@@ -73,12 +78,23 @@ public class FileShareController extends ABaseController {
 	@RequestMapping("/cancelShare")
 	@GlobalInterceptor(checkParams = true)
 	public ResponseVO cancelShare(HttpSession session,
-								@VerifyParam(required = true) String shareIds){
+								  @VerifyParam(required = true) String shareIds){
 		SessionWebUserDto sessionWebUserDto = getUserInfoFromSession(session);
 		String userId = sessionWebUserDto.getUserId();
 		fileShareService.deleteFileShareBatch(shareIds.split(","), userId);
 		return getSuccessResponseVO(null);
 	}
 
-
+	@RequestMapping("/extendShareTime")
+	@GlobalInterceptor(checkParams = true)
+	public ResponseVO extendShareTime(HttpSession session,
+									  @VerifyParam(required = true) String shareId,
+									  @VerifyParam(required = true) Integer validType) {
+		SessionWebUserDto sessionWebUserDto = getUserInfoFromSession(session);
+		ShareValidTypeEnums typeEnums = ShareValidTypeEnums.getByType(validType);
+		FileShare fileShare = new FileShare();
+		fileShare.setExpireTime(DateUtils.getAfterDate(typeEnums.getDays()));
+		fileShareService.updateFileShareByShareId(fileShare, shareId);
+		return getSuccessResponseVO("延长成功");
+	}
 }

@@ -276,8 +276,18 @@ public class UserInfoController extends ABaseController {
 	public ResponseVO resetNickname(HttpSession session, @VerifyParam(required = true) String nickname) {
 		SessionWebUserDto sessionWebUserDto = getUserInfoFromSession(session);
 		userInfoService.resetNickname(sessionWebUserDto.getUserId(), nickname);
-		return getSuccessResponseVO(null);
+		sessionWebUserDto.setNickName(nickname);
+		session.setAttribute(Constants.SESSION_KEY, sessionWebUserDto);
+		return getSuccessResponseVO("修改成功");
 	}
 
-
+	@RequestMapping("/everyDaySignIn")
+	public ResponseVO everyDaySignIn(HttpSession session) {
+		SessionWebUserDto sessionWebUserDto = getUserInfoFromSession(session);
+		if (redisComponent.getSignInToday(sessionWebUserDto.getUserId())) {
+			throw new BusinessException("已经签到过了");
+		}
+		redisComponent.setSighInToday(sessionWebUserDto.getUserId());
+		return getSuccessResponseVO("签到成功");
+	}
 }
