@@ -92,8 +92,8 @@ public class FileShareController extends ABaseController {
 									  @VerifyParam(required = true) Integer validType) {
 		SessionWebUserDto sessionWebUserDto = getUserInfoFromSession(session);
 		ShareValidTypeEnums typeEnums = ShareValidTypeEnums.getByType(validType);
-		FileShare fileShare = new FileShare();
-		fileShare.setExpireTime(DateUtils.getAfterDate(typeEnums.getDays()));
+		FileShare fileShare = fileShareService.getFileShareByShareId(shareId);
+		fileShare.setExpireTime(DateUtils.getAfterDate(fileShare.getExpireTime(), typeEnums.getDays()));
 		fileShareService.updateFileShareByShareId(fileShare, shareId);
 		return getSuccessResponseVO("延长成功");
 	}

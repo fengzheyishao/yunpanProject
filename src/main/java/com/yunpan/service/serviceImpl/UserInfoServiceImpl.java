@@ -287,6 +287,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		sessionWebUserDto.setNickName(userInfo.getNickName());
 		sessionWebUserDto.setUserId(userInfo.getUserId());
 		sessionWebUserDto.setJoinTime(userInfo.getJoinTime());
+
 		sessionWebUserDto.setLastLoginTime(userInfo.getLastLoginTime());
 
 		if (ArrayUtils.contains(appconfig.getAdminEmail().split(","), email)) {

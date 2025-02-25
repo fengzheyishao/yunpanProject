@@ -6,11 +6,13 @@ import com.yunpan.component.RedisComponent;
 import com.yunpan.entity.dto.SysSettingsDto;
 import com.yunpan.entity.query.FileInfoQuery;
 import com.yunpan.entity.query.UserInfoQuery;
+import com.yunpan.entity.query.UserMemoryRequestQuery;
 import com.yunpan.entity.vo.PaginationResultVO;
 import com.yunpan.entity.vo.ResponseVO;
 import com.yunpan.entity.vo.UserInfoVO;
 import com.yunpan.service.FileInfoService;
 import com.yunpan.service.UserInfoService;
+import com.yunpan.service.UserMemoryRequestService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +32,9 @@ public class AdminController extends CommonFileController{
 
     @Resource
     private UserInfoService userInfoService;
+
+    @Resource
+    private UserMemoryRequestService userMemoryRequestService;
 
     @RequestMapping("/getSysSettings")
     @GlobalInterceptor(checkParams = true, checkAdmin = true)
@@ -137,5 +142,10 @@ public class AdminController extends CommonFileController{
         return getSuccessResponseVO(null);
     }
 
-
+    @RequestMapping("/getMemoryApplyList")
+    @GlobalInterceptor(checkParams = true, checkAdmin = true)
+    public ResponseVO getMemoryApplyList(UserMemoryRequestQuery query) {
+        query.setQueryNickName(true);
+        return getSuccessResponseVO(userMemoryRequestService.findListByPage(query));
+    }
 }

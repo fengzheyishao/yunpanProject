@@ -288,6 +288,7 @@ public class UserInfoController extends ABaseController {
 			throw new BusinessException("已经签到过了");
 		}
 		redisComponent.setSighInToday(sessionWebUserDto.getUserId());
+		userInfoService.changeUserSpace(sessionWebUserDto.getUserId(), redisComponent.getSysSettingsDto().getSignIn());
 		return getSuccessResponseVO("签到成功");
 	}
 }

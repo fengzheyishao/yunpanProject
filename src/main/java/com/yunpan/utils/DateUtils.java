@@ -51,6 +51,13 @@ public class DateUtils {
         return calendar.getTime();
     }
 
+    public static Date getAfterDate(Date date, Integer day) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_YEAR, day);
+        return calendar.getTime();
+    }
+
     public static Date getDateZero(Integer day) {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_YEAR, day);

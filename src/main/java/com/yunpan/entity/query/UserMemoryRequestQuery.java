@@ -63,6 +63,26 @@ public class UserMemoryRequestQuery extends BaseParam{
 
 	private String notesFuzzy;
 
+	private String nickNameFuzzy;
+
+	private Boolean queryNickName;
+
+	public Boolean getQueryNickName() {
+		return queryNickName;
+	}
+
+	public void setQueryNickName(Boolean queryNickName) {
+		this.queryNickName = queryNickName;
+	}
+
+	public String getNickNameFuzzy() {
+		return nickNameFuzzy;
+	}
+
+	public void setNickNameFuzzy(String nickNameFuzzy) {
+		this.nickNameFuzzy = nickNameFuzzy;
+	}
+
 	public void setId(Long id) {
 		this.id = id;
 	}

@@ -1,5 +1,6 @@
 package com.yunpan.controller;
 
+import com.yunpan.annotation.GlobalInterceptor;
 import com.yunpan.annotation.VerifyParam;
 import com.yunpan.entity.dto.SessionWebUserDto;
 import com.yunpan.entity.po.UserMemoryRequest;
@@ -77,8 +78,9 @@ public class UserMemoryRequestController extends ABaseController {
 	 */
 	@RequestMapping("/updateUserMemoryRequestById")
 	public ResponseVO updateUserMemoryRequestById(UserMemoryRequest bean, Long id) {
+		bean.setStatus(0);
 		this.userMemoryRequestService.updateUserMemoryRequestById(bean, id);
-		return getSuccessResponseVO(null);
+		return getSuccessResponseVO("修改成功");
 	}
 
 	/**
@@ -91,9 +93,7 @@ public class UserMemoryRequestController extends ABaseController {
 	}
 
 	@RequestMapping("/addUserMemoryApply")
-	public ResponseVO addUserMemoryApply(HttpSession session,
-										 @PathVariable("requestSize") @VerifyParam(required = true) Long requestSize,
-										 @PathVariable("notes") String notes) {
+	public ResponseVO addUserMemoryApply(HttpSession session, Long requestSize, String notes) {
 		SessionWebUserDto sessionWebUserDto = getUserInfoFromSession(session);
 		UserMemoryRequest userMemoryRequest = new UserMemoryRequest();
 		Date date = new Date();
