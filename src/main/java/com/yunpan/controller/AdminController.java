@@ -4,22 +4,27 @@ import com.yunpan.annotation.GlobalInterceptor;
 import com.yunpan.annotation.VerifyParam;
 import com.yunpan.component.RedisComponent;
 import com.yunpan.entity.dto.SysSettingsDto;
+import com.yunpan.entity.dto.UserMemoryRequestDto;
+import com.yunpan.entity.po.UserMemoryRequest;
 import com.yunpan.entity.query.FileInfoQuery;
 import com.yunpan.entity.query.UserInfoQuery;
 import com.yunpan.entity.query.UserMemoryRequestQuery;
 import com.yunpan.entity.vo.PaginationResultVO;
 import com.yunpan.entity.vo.ResponseVO;
 import com.yunpan.entity.vo.UserInfoVO;
+import com.yunpan.enums.MemoryRequestStatusEnum;
+import com.yunpan.enums.ResponseCodeEnum;
+import com.yunpan.exception.BusinessException;
 import com.yunpan.service.FileInfoService;
 import com.yunpan.service.UserInfoService;
 import com.yunpan.service.UserMemoryRequestService;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.yunpan.utils.StringTools;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 
 @RestController("adminController")
 @RequestMapping("/admin")
@@ -146,6 +151,43 @@ public class AdminController extends CommonFileController{
     @GlobalInterceptor(checkParams = true, checkAdmin = true)
     public ResponseVO getMemoryApplyList(UserMemoryRequestQuery query) {
         query.setQueryNickName(true);
+        query.setOrderBy("request_time desc");
         return getSuccessResponseVO(userMemoryRequestService.findListByPage(query));
     }
+
+    @RequestMapping("/updateUserMemory")
+    @GlobalInterceptor(checkParams = true, checkAdmin = true)
+    public ResponseVO updateUserMemory(@RequestBody UserMemoryRequestDto userMemoryRequestDto) {
+        if (userMemoryRequestDto == null) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        UserMemoryRequest userMemoryRequest = new UserMemoryRequest();
+        userMemoryRequest.setStatus(userMemoryRequestDto.getStatus());
+        userMemoryRequest.setRequestTime(new Date());
+        if (!StringTools.isEmpty(userMemoryRequestDto.getRejectionReason()))
+            userMemoryRequest.setRejectionReason(userMemoryRequestDto.getRejectionReason());
+        for (Long userId: userMemoryRequestDto.getUserIds()) {
+            userMemoryRequestService.adminUserMemoryApply(userMemoryRequest, userId);
+        }
+        return getSuccessResponseVO("审核成功");
+    }
+
+    @RequestMapping("/updateQueryAllUserMemory")
+    @GlobalInterceptor(checkParams = true, checkAdmin = true)
+    public ResponseVO updateQueryAllUserMemory(@RequestBody UserMemoryRequestDto userMemoryRequestDto) {
+        UserMemoryRequest userMemoryRequest = new UserMemoryRequest();
+        userMemoryRequest.setStatus(userMemoryRequestDto.getStatus());
+        userMemoryRequest.setRequestTime(new Date());
+        if (!StringTools.isEmpty(userMemoryRequestDto.getRejectionReason()))
+            userMemoryRequest.setRejectionReason(userMemoryRequestDto.getRejectionReason());
+        UserMemoryRequestQuery query = userMemoryRequestDto.getQuery();
+        if (query == null) {
+            query = new UserMemoryRequestQuery();
+        }
+        query.setStatus(MemoryRequestStatusEnum.PENDING.getCode());
+        userMemoryRequestService.adminUserMemoryApplyBatch(userMemoryRequest, query);
+        return getSuccessResponseVO("审核成功");
+    }
+
+
 }

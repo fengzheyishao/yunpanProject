@@ -24,5 +24,5 @@ public interface UserMemoryRequestMapper<T, P> extends BaseMapper {
 	 */
 	Integer deleteById(@Param("id") Long id);
 
-
+	Integer updateBatchByQuery(@Param("bean") T t, @Param("query") P p);
 }

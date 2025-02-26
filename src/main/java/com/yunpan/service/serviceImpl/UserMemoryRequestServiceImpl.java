@@ -1,14 +1,24 @@
 package com.yunpan.service.serviceImpl;
 
+import com.yunpan.component.RedisComponent;
+import com.yunpan.entity.constants.Constants;
+import com.yunpan.entity.po.UserInfo;
 import com.yunpan.entity.po.UserMemoryRequest;
+import com.yunpan.entity.query.UserInfoQuery;
 import com.yunpan.entity.query.UserMemoryRequestQuery;
 import com.yunpan.entity.query.SimplePage;
 import com.yunpan.entity.vo.PaginationResultVO;
+import com.yunpan.enums.MemoryRequestStatusEnum;
+import com.yunpan.enums.ResponseCodeEnum;
+import com.yunpan.exception.BusinessException;
+import com.yunpan.mappers.UserInfoMapper;
 import com.yunpan.service.UserMemoryRequestService;
 import com.yunpan.mappers.UserMemoryRequestMapper;
 import com.yunpan.enums.PageSize;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 /**
@@ -21,6 +31,10 @@ public class UserMemoryRequestServiceImpl implements UserMemoryRequestService {
 
 	@Resource
 	private UserMemoryRequestMapper<UserMemoryRequest, UserMemoryRequestQuery> userMemoryRequestMapper;
+	@Resource
+	private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
+	@Resource
+	private RedisComponent redisComponent;
 
 	/**
 	 * 根据条件查询列表
@@ -107,5 +121,34 @@ public class UserMemoryRequestServiceImpl implements UserMemoryRequestService {
 		return this.userMemoryRequestMapper.deleteById(id);
 	}
 
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void adminUserMemoryApplyBatch(UserMemoryRequest bean, UserMemoryRequestQuery query) {
+		List<UserMemoryRequest> list = this.userMemoryRequestMapper.selectList(query);
+		if (bean.getStatus() == MemoryRequestStatusEnum.APPROVED.getCode()) {
+			for (UserMemoryRequest item: list) {
+				addUserSpace(item.getId());
+			}
+		}
+		this.userMemoryRequestMapper.updateBatchByQuery(bean, query);
+	}
 
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void adminUserMemoryApply(UserMemoryRequest bean, Long id) {
+		if (bean.getStatus() == MemoryRequestStatusEnum.APPROVED.getCode()) {
+			addUserSpace(id);
+		}
+		this.userMemoryRequestMapper.updateById(bean, id);
+	}
+
+	private void addUserSpace(Long id) {
+		UserMemoryRequest userMemoryRequest = this.userMemoryRequestMapper.selectById(id);
+		if (userMemoryRequest == null) {
+			throw new BusinessException(ResponseCodeEnum.CODE_500);
+		}
+		Long space = userMemoryRequest.getRequestSize() * Constants.MB;
+		this.userInfoMapper.updateUserSpace(userMemoryRequest.getUserId(), null, space);
+		redisComponent.resetUserSpaceUse(userMemoryRequest.getUserId());
+	}
 }

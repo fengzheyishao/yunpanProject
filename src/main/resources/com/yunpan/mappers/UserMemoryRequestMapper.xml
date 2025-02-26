@@ -26,6 +26,13 @@
 	<!--通用查询结果列 -->
 	<sql id="base_column_list">
 		id,user_id,request_time,request_size,status,approval_time,rejection_reason,notes
+		<if test="query.queryNickName!= null and query.queryNickName!=''">
+			, (select nick_name from user_info where user_info.user_id=user_memory_request.user_id) nickName
+		</if>
+	</sql>
+
+	<sql id="base_column_list2">
+		id,user_id,request_time,request_size,status,approval_time,rejection_reason,notes
 	</sql>
 
 	<!--基础查询条件-->
@@ -40,7 +47,7 @@
 			and request_time= #{query.requestTime}
 		</if>
 		<if test="query.requestSize!= null ">
-			and request_size>= #{query.requestSize}
+			and  #{query.requestSize}>=request_size
 		</if>
 		<if test="query.status!= null ">
 			and status= #{query.status}
@@ -58,9 +65,6 @@
 
 	<!--扩展的查询条件-->
 	<sql id="base_query_condition_extend">
-		<if test="query.userIdFuzzy != null and query.userIdFuzzy !=''">
-			and userIdFuzzy like concat('%', #{query.userIdFuzzy}, '%')
-		</if>
 		<if test="query.requestTimeStart != null and query.requestTimeStart !=''">
 			<![CDATA[ and request_time >= str_to_date(#{requestTimeStart}, 'Y-%m-%d') ]]>
 		</if>
@@ -79,6 +83,14 @@
 		<if test="query.notesFuzzy != null and query.notesFuzzy !=''">
 			and notesFuzzy like concat('%', #{query.notesFuzzy}, '%')
 		</if>
+		<if test="query.queryNickName != null and query.queryNickName != '' and query.nickNameFuzzy != null and query.nickNameFuzzy !=''">
+			AND EXISTS (
+			SELECT 1
+			FROM user_info
+			WHERE user_info.user_id = user_memory_request.user_id
+			AND user_info.nick_name LIKE CONCAT('%', #{query.nickNameFuzzy}, '%')
+			)
+		</if>
 	</sql>
 
 	<!--通用的查询条件-->
@@ -93,19 +105,8 @@
 	<select id="selectList" resultMap="base_result_map">
 		SELECT
 		<include refid="base_column_list"/>
-		<if test="query.queryNickName!= null and query.queryNickName!=''">
-			, (select nick_name from user_info where user_info.user_id=user_memory_request.user_id) nickName
-		</if>
 		FROM user_memory_request
 		<include refid="query_condition"/>
-		<if test="query.queryNickName != null and query.queryNickName != '' and query.nickNameFuzzy != null and query.nickNameFuzzy !=''">
-			AND EXISTS (
-			SELECT 1
-			FROM user_info
-			WHERE user_info.user_id = user_memory_request.user_id
-			AND user_info.nick_name LIKE CONCAT('%', #{query.nickNameFuzzy}, '%')
-			)
-		</if>
 		<if test="query.orderBy != null">
 			order by ${query.orderBy}
 		</if>
@@ -288,7 +289,7 @@
 
 	<!-- 根据Id查询 -->
 	<select id="selectById" resultMap="base_result_map">
-		select <include refid="base_column_list"/> from user_memory_request where id=#{id}
+		select <include refid="base_column_list2"/> from user_memory_request where id=#{id}
 	</select>
 
 	<!-- 根据Id修改 -->
@@ -328,4 +329,34 @@
 		DELETE FROM user_memory_request where id=#{id}
 	</delete>
 
+	<update id="updateBatchByQuery">
+		UPDATE user_memory_request
+		<set>
+			<if test="bean.id!=null">
+				id = #{bean.id},
+			</if>
+			<if test="bean.userId!=null">
+				user_id = #{bean.userId},
+			</if>
+			<if test="bean.requestTime!=null">
+				request_time = #{bean.requestTime},
+			</if>
+			<if test="bean.requestSize!=null">
+				request_size = #{bean.requestSize},
+			</if>
+			<if test="bean.status!=null">
+				status = #{bean.status},
+			</if>
+			<if test="bean.approvalTime!=null">
+				approval_time = #{bean.approvalTime},
+			</if>
+			<if test="bean.rejectionReason!=null">
+				rejection_reason = #{bean.rejectionReason},
+			</if>
+			<if test="bean.notes!=null">
+				notes = #{bean.notes},
+			</if>
+		</set>
+		<include refid="query_condition"/>
+	</update>
 </mapper>

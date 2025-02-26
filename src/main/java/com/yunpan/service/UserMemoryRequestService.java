@@ -55,5 +55,7 @@ public interface UserMemoryRequestService {
 	 */
 	Integer deleteUserMemoryRequestById(Long id);
 
+	void adminUserMemoryApplyBatch(UserMemoryRequest userMemoryRequest, UserMemoryRequestQuery query);
 
+	void adminUserMemoryApply(UserMemoryRequest bean, Long id);
 }
