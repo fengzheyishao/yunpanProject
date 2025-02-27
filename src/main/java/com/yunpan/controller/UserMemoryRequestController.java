@@ -3,6 +3,7 @@ package com.yunpan.controller;
 import com.yunpan.annotation.GlobalInterceptor;
 import com.yunpan.annotation.VerifyParam;
 import com.yunpan.entity.dto.SessionWebUserDto;
+import com.yunpan.entity.dto.UserMemoryRequestDto;
 import com.yunpan.entity.po.UserMemoryRequest;
 import com.yunpan.entity.query.UserMemoryRequestQuery;
 import com.yunpan.entity.vo.ResponseVO;
@@ -87,9 +88,13 @@ public class UserMemoryRequestController extends ABaseController {
 	 * 根据Id删除
 	 */
 	@RequestMapping("/deleteUserMemoryRequestById")
-	public ResponseVO deleteUserMemoryRequestById(Long id) {
-		this.userMemoryRequestService.deleteUserMemoryRequestById(id);
-		return getSuccessResponseVO(null);
+	public ResponseVO deleteUserMemoryRequestById(HttpSession session,
+												  @RequestBody UserMemoryRequestDto userMemoryRequestDto) {
+		String userId = getUserInfoFromSession(session).getUserId();
+		for (Long id: userMemoryRequestDto.getUserIds()) {
+			this.userMemoryRequestService.deleteUserMemoryRequestByIdAndUserId(id, userId);
+		}
+		return getSuccessResponseVO("删除成功");
 	}
 
 	@RequestMapping("/addUserMemoryApply")

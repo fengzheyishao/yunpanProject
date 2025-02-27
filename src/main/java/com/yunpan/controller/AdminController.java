@@ -5,8 +5,10 @@ import com.yunpan.annotation.VerifyParam;
 import com.yunpan.component.RedisComponent;
 import com.yunpan.entity.dto.SysSettingsDto;
 import com.yunpan.entity.dto.UserMemoryRequestDto;
+import com.yunpan.entity.po.RequestLog;
 import com.yunpan.entity.po.UserMemoryRequest;
 import com.yunpan.entity.query.FileInfoQuery;
+import com.yunpan.entity.query.RequestLogQuery;
 import com.yunpan.entity.query.UserInfoQuery;
 import com.yunpan.entity.query.UserMemoryRequestQuery;
 import com.yunpan.entity.vo.PaginationResultVO;
@@ -16,6 +18,7 @@ import com.yunpan.enums.MemoryRequestStatusEnum;
 import com.yunpan.enums.ResponseCodeEnum;
 import com.yunpan.exception.BusinessException;
 import com.yunpan.service.FileInfoService;
+import com.yunpan.service.RequestLogService;
 import com.yunpan.service.UserInfoService;
 import com.yunpan.service.UserMemoryRequestService;
 import com.yunpan.utils.StringTools;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.Date;
 
 @RestController("adminController")
@@ -37,6 +41,9 @@ public class AdminController extends CommonFileController{
 
     @Resource
     private UserInfoService userInfoService;
+
+    @Resource
+    private RequestLogService requestLogService;
 
     @Resource
     private UserMemoryRequestService userMemoryRequestService;
@@ -187,6 +194,38 @@ public class AdminController extends CommonFileController{
         query.setStatus(MemoryRequestStatusEnum.PENDING.getCode());
         userMemoryRequestService.adminUserMemoryApplyBatch(userMemoryRequest, query);
         return getSuccessResponseVO("审核成功");
+    }
+
+    @RequestMapping("/deleteUserMemoryById")
+    @GlobalInterceptor(checkParams = true, checkAdmin = true)
+    public ResponseVO deleteUserMemoryById(@RequestBody UserMemoryRequestDto userMemoryRequestDto) {
+        for (Long id: userMemoryRequestDto.getUserIds()) {
+            this.userMemoryRequestService.deleteUserMemoryRequestById(id);
+        }
+        return getSuccessResponseVO("删除成功");
+    }
+
+    @RequestMapping("/selectLog")
+    @GlobalInterceptor(checkParams = true, checkAdmin = true)
+    public ResponseVO selectLog(RequestLogQuery requestLogQuery) {
+        return getSuccessResponseVO(this.requestLogService.findListByParam(requestLogQuery));
+    }
+
+    @RequestMapping("/deleteRequestLogById")
+    @GlobalInterceptor(checkParams = true, checkAdmin = true)
+    public ResponseVO deleteRequestLogById(String ids) {
+        String[] idArray = ids.split(",");
+        for (String id: idArray) {
+            this.requestLogService.deleteRequestLogById(Long.parseLong(id));
+        }
+        return getSuccessResponseVO("删除成功");
+    }
+
+    @RequestMapping("/deleteRequestLogByQuery")
+    @GlobalInterceptor(checkParams = true, checkAdmin = true)
+    public ResponseVO deleteRequestLogByQuery(RequestLogQuery query) {
+        this.requestLogService.deleteRequestLogByQuery(query);
+        return getSuccessResponseVO("删除成功");
     }
 
 

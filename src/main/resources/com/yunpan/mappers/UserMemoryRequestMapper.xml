@@ -329,6 +329,10 @@
 		DELETE FROM user_memory_request where id=#{id}
 	</delete>
 
+	<delete id="deleteByIdAndUserId">
+		DELETE FROM user_memory_request where id=#{id} and user_id=${userId}
+	</delete>
+
 	<update id="updateBatchByQuery">
 		UPDATE user_memory_request
 		<set>

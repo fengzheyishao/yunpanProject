@@ -142,6 +142,11 @@ public class UserMemoryRequestServiceImpl implements UserMemoryRequestService {
 		this.userMemoryRequestMapper.updateById(bean, id);
 	}
 
+	@Override
+	public Integer deleteUserMemoryRequestByIdAndUserId(Long id, String userId) {
+		return this.userMemoryRequestMapper.deleteByIdAndUserId(id, userId);
+	}
+
 	private void addUserSpace(Long id) {
 		UserMemoryRequest userMemoryRequest = this.userMemoryRequestMapper.selectById(id);
 		if (userMemoryRequest == null) {

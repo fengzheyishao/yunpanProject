@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunpan.mappers.RequestLogMapper">
+
+	<!--实体映射-->
+	<resultMap id="base_result_map" type="com.yunpan.entity.po.RequestLog">
+		<!--主键ID-->
+		<id column="id" property="id"/>
+		<!--用户id-->
+		<result column="user_id" property="userId"/>
+		<!--请求URL-->
+		<result column="url" property="url"/>
+		<!--请求方法（GET/POST/PUT/DELETE等）-->
+		<result column="method" property="method"/>
+		<!--请求头（JSON格式）-->
+		<result column="request_headers" property="requestHeaders"/>
+		<!--请求体（JSON格式）-->
+		<result column="request_body" property="requestBody"/>
+		<!--响应体（JSON格式）-->
+		<result column="response_body" property="responseBody"/>
+		<!--响应状态码-->
+		<result column="response_status" property="responseStatus"/>
+		<!--请求时间戳-->
+		<result column="timestamp" property="timestamp"/>
+	</resultMap>
+
+	<!--通用查询结果列 -->
+	<sql id="base_column_list">
+		id,user_id,url,method,request_headers,request_body,response_body,response_status,timestamp
+	</sql>
+
+	<!--基础查询条件-->
+	<sql id="base_query_condition">
+		<if test="query.id!= null ">
+			and id= #{query.id}
+		</if>
+		<if test="query.userId!= null and query.userId!=''">
+			and userId= #{query.userId}
+		</if>
+		<if test="query.url!= null and query.url!=''">
+			and url= #{query.url}
+		</if>
+		<if test="query.method!= null and query.method!=''">
+			and method= #{query.method}
+		</if>
+		<if test="query.requestHeaders!= null and query.requestHeaders!=''">
+			and requestHeaders= #{query.requestHeaders}
+		</if>
+		<if test="query.requestBody!= null and query.requestBody!=''">
+			and requestBody= #{query.requestBody}
+		</if>
+		<if test="query.responseBody!= null and query.responseBody!=''">
+			and responseBody= #{query.responseBody}
+		</if>
+		<if test="query.responseStatus!= null ">
+			and responseStatus= #{query.responseStatus}
+		</if>
+		<if test="query.timestamp!= null ">
+			and timestamp= #{query.timestamp}
+		</if>
+	</sql>
+
+	<!--扩展的查询条件-->
+	<sql id="base_query_condition_extend">
+		<if test="query.responseStatusMin != null and query.responseStatusMin">
+			and responseStatus > ${query.responseStatusMin}
+		</if>
+		<if test="query.responseStatusMax != null and query.responseStatusMax">
+			and ${query.responseStatusMax} > responseStatus
+		</if>
+		<if test="query.userIdFuzzy != null and query.userIdFuzzy !=''">
+			and userIdFuzzy like concat('%', #{query.userIdFuzzy}, '%')
+		</if>
+		<if test="query.urlFuzzy != null and query.urlFuzzy !=''">
+			and urlFuzzy like concat('%', #{query.urlFuzzy}, '%')
+		</if>
+		<if test="query.methodFuzzy != null and query.methodFuzzy !=''">
+			and methodFuzzy like concat('%', #{query.methodFuzzy}, '%')
+		</if>
+		<if test="query.requestHeadersFuzzy != null and query.requestHeadersFuzzy !=''">
+			and requestHeadersFuzzy like concat('%', #{query.requestHeadersFuzzy}, '%')
+		</if>
+		<if test="query.requestBodyFuzzy != null and query.requestBodyFuzzy !=''">
+			and requestBodyFuzzy like concat('%', #{query.requestBodyFuzzy}, '%')
+		</if>
+		<if test="query.responseBodyFuzzy != null and query.responseBodyFuzzy !=''">
+			and responseBodyFuzzy like concat('%', #{query.responseBodyFuzzy}, '%')
+		</if>
+		<if test="query.timestampStart != null and query.timestampStart !=''">
+			<![CDATA[ and timestamp >= str_to_date(#{timestampStart}, 'Y-%m-%d') ]]>
+		</if>
+		<if test="query.timestampEnd != null and query.timestampEnd !=''">
+			<![CDATA[ and timestamp < str_to_date(#{timestampEnd}, 'Y-%m-%d') + interval 1 day ]]>
+		</if>
+	</sql>
+
+	<!--通用的查询条件-->
+	<sql id="query_condition">
+		<where>
+			<include refid="base_query_condition"/>
+			<include refid="base_query_condition_extend"/>
+		</where>
+	</sql>
+
+	<!--查询列表-->
+	<select id="selectList" resultMap="base_result_map">
+		SELECT
+		<include refid="base_column_list"/>
+		FROM request_log
+		<include refid="query_condition"/>
+		<if test="query.orderBy != null">
+			order by ${query.orderBy}
+		</if>
+		<if test="query.simplePage != null">
+			limit #{query.simplePage.start}, #{query.simplePage.end}
+		</if>
+	</select>
+
+	<!--查询数量-->
+	<select id="selectCount" resultType="java.lang.Integer">
+		SELECT count(1) FROM request_log
+		<include refid="query_condition"/>
+	</select>
+
+	<!--插入 (匹配有值字段)-->
+	<insert id="insert" parameterType="com.yunpan.entity.po.RequestLog">
+		<selectKey keyProperty="bean.id" resultType="Long" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO request_log
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bean.id != null">
+				id,
+			</if>
+			<if test="bean.userId != null">
+				user_id,
+			</if>
+			<if test="bean.url != null">
+				url,
+			</if>
+			<if test="bean.method != null">
+				method,
+			</if>
+			<if test="bean.requestHeaders != null">
+				request_headers,
+			</if>
+			<if test="bean.requestBody != null">
+				request_body,
+			</if>
+			<if test="bean.responseBody != null">
+				response_body,
+			</if>
+			<if test="bean.responseStatus != null">
+				response_status,
+			</if>
+			<if test="bean.timestamp != null">
+				timestamp,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bean.id != null">
+				#{bean.id},
+			</if>
+			<if test="bean.userId != null">
+				#{bean.userId},
+			</if>
+			<if test="bean.url != null">
+				#{bean.url},
+			</if>
+			<if test="bean.method != null">
+				#{bean.method},
+			</if>
+			<if test="bean.requestHeaders != null">
+				#{bean.requestHeaders},
+			</if>
+			<if test="bean.requestBody != null">
+				#{bean.requestBody},
+			</if>
+			<if test="bean.responseBody != null">
+				#{bean.responseBody},
+			</if>
+			<if test="bean.responseStatus != null">
+				#{bean.responseStatus},
+			</if>
+			<if test="bean.timestamp != null">
+				#{bean.timestamp},
+			</if>
+		</trim>
+	</insert>
+
+	<!-- 插入或者更新 (匹配有值的字段) -->
+	<insert id="insertOrUpdate" parameterType="com.yunpan.entity.po.RequestLog">
+		INSERT INTO request_log
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bean.id != null">
+				id,
+			</if>
+			<if test="bean.userId != null">
+				user_id,
+			</if>
+			<if test="bean.url != null">
+				url,
+			</if>
+			<if test="bean.method != null">
+				method,
+			</if>
+			<if test="bean.requestHeaders != null">
+				request_headers,
+			</if>
+			<if test="bean.requestBody != null">
+				request_body,
+			</if>
+			<if test="bean.responseBody != null">
+				response_body,
+			</if>
+			<if test="bean.responseStatus != null">
+				response_status,
+			</if>
+			<if test="bean.timestamp != null">
+				timestamp,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bean.id != null">
+				#{bean.id},
+			</if>
+			<if test="bean.userId != null">
+				#{bean.userId},
+			</if>
+			<if test="bean.url != null">
+				#{bean.url},
+			</if>
+			<if test="bean.method != null">
+				#{bean.method},
+			</if>
+			<if test="bean.requestHeaders != null">
+				#{bean.requestHeaders},
+			</if>
+			<if test="bean.requestBody != null">
+				#{bean.requestBody},
+			</if>
+			<if test="bean.responseBody != null">
+				#{bean.responseBody},
+			</if>
+			<if test="bean.responseStatus != null">
+				#{bean.responseStatus},
+			</if>
+			<if test="bean.timestamp != null">
+				#{bean.timestamp},
+			</if>
+		</trim>
+		on DUPLICATE key update
+		<trim prefix="" suffix="" suffixOverrides=",">
+			<if test="bean.userId != null">
+				user_id = VALUES(user_id),
+			</if>
+			<if test="bean.url != null">
+				url = VALUES(url),
+			</if>
+			<if test="bean.method != null">
+				method = VALUES(method),
+			</if>
+			<if test="bean.requestHeaders != null">
+				request_headers = VALUES(request_headers),
+			</if>
+			<if test="bean.requestBody != null">
+				request_body = VALUES(request_body),
+			</if>
+			<if test="bean.responseBody != null">
+				response_body = VALUES(response_body),
+			</if>
+			<if test="bean.responseStatus != null">
+				response_status = VALUES(response_status),
+			</if>
+			<if test="bean.timestamp != null">
+				timestamp = VALUES(timestamp),
+			</if>
+		</trim>
+	</insert>
+
+	<!-- 添加(批量插入) -->
+	<insert id="insertBatch" parameterType="com.yunpan.entity.po.RequestLog" >
+		INSERT INTO request_log(user_id,url,method,request_headers,request_body,response_body,response_status,timestamp) values
+		<foreach collection="list" item = "item" separator="," >
+			(#{item.user_id},#{item.url},#{item.method},#{item.request_headers},#{item.request_body},#{item.response_body},#{item.response_status},#{item.timestamp})
+		</foreach>
+	</insert>
+
+	<!-- 批量新增修改(批量插入) -->
+	<insert id="insertOrUpdateBatch" parameterType="com.yunpan.entity.po.RequestLog" >
+		INSERT INTO request_log(user_id,url,method,request_headers,request_body,response_body,response_status,timestamp) values
+		<foreach collection="list" item="item" separator="," >
+			(#{item.user_id},#{item.url},#{item.method},#{item.request_headers},#{item.request_body},#{item.response_body},#{item.response_status},#{item.timestamp})
+		</foreach>
+		on DUPLICATE key update
+		id = VALUES(id),
+		user_id = VALUES(user_id),
+		url = VALUES(url),
+		method = VALUES(method),
+		request_headers = VALUES(request_headers),
+		request_body = VALUES(request_body),
+		response_body = VALUES(response_body),
+		response_status = VALUES(response_status),
+		timestamp = VALUES(timestamp)
+	</insert>
+
+	<!-- 根据Id查询 -->
+	<select id="selectById" resultMap="base_result_map">
+		select <include refid="base_column_list"/> from request_log where id=#{id}
+	</select>
+
+	<!-- 根据Id修改 -->
+	<update id="updateById" parameterType="com.yunpan.entity.po.RequestLog">
+		UPDATE request_log
+		<set>
+			<if test="bean.id!=null">
+				id = #{bean.id},
+			</if>
+			<if test="bean.userId!=null">
+				user_id = #{bean.userId},
+			</if>
+			<if test="bean.url!=null">
+				url = #{bean.url},
+			</if>
+			<if test="bean.method!=null">
+				method = #{bean.method},
+			</if>
+			<if test="bean.requestHeaders!=null">
+				request_headers = #{bean.requestHeaders},
+			</if>
+			<if test="bean.requestBody!=null">
+				request_body = #{bean.requestBody},
+			</if>
+			<if test="bean.responseBody!=null">
+				response_body = #{bean.responseBody},
+			</if>
+			<if test="bean.responseStatus!=null">
+				response_status = #{bean.responseStatus},
+			</if>
+			<if test="bean.timestamp!=null">
+				timestamp = #{bean.timestamp},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!-- 根据Id删除 -->
+	<delete id="deleteById">
+		DELETE FROM request_log where id=#{id}
+	</delete>
+
+	<delete id="deleteByQuery">
+		DELETE * FROM request_log
+		<include refid="query_condition" />
+	</delete>
+</mapper>

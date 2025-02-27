@@ -3,11 +3,11 @@ package com.yunpan.mappers;
 import org.apache.ibatis.annotations.Param;
 
 /**
- * @Description: 用户内存申请信息表Mapper
+ * @Description: 请求日志信息表Mapper
  * @auther: lnorly
- * @Date: 2025/02/24
+ * @Date: 2025/02/27
  */
-public interface UserMemoryRequestMapper<T, P> extends BaseMapper {
+public interface RequestLogMapper<T, P> extends BaseMapper {
 
 	/**
 	 * 根据Id查询
@@ -24,7 +24,5 @@ public interface UserMemoryRequestMapper<T, P> extends BaseMapper {
 	 */
 	Integer deleteById(@Param("id") Long id);
 
-	Integer updateBatchByQuery(@Param("bean") T t, @Param("query") P p);
-
-	Integer deleteByIdAndUserId(@Param("id") Long id, @Param("userId") String userId);
+	Integer deleteByQuery(@Param("query") P p);
 }
