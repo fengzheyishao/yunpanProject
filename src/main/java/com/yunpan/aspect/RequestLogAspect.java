@@ -3,6 +3,7 @@ package com.yunpan.aspect;
 import com.yunpan.entity.constants.Constants;
 import com.yunpan.entity.dto.SessionWebUserDto;
 import com.yunpan.entity.po.RequestLog;
+import com.yunpan.entity.vo.ResponseVO;
 import io.netty.util.internal.StringUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -45,11 +46,13 @@ public class RequestLogAspect {
         Object[] args = joinPoint.getArgs();
         String userId = null;
         for (Object arg : args) {
-            if (arg instanceof HttpSession) {
-                SessionWebUserDto sessionWebUserDto = getUserInfoFromSession((HttpSession)arg);
-                if (sessionWebUserDto != null) userId = sessionWebUserDto.getUserId();
+            if (arg != null) {
+                if (arg instanceof HttpSession) {
+                    SessionWebUserDto sessionWebUserDto = getUserInfoFromSession((HttpSession) arg);
+                    if (sessionWebUserDto != null) userId = sessionWebUserDto.getUserId();
+                }
+                sb.append(arg.toString()).append("\n");
             }
-            sb.append(arg.toString()).append("\n");
         }
 
         String requestBody = sb.toString();
@@ -73,17 +76,28 @@ public class RequestLogAspect {
                 // 避免response或其body为空导致的空指针
                 if (response != null) {
                     requestLog.setResponseStatus(response.getStatusCodeValue());
+                    requestLog.setLogStatus(getLogStatus(response.getStatusCodeValue()));
                     // 如果可能得到null，则toString前加判空处理
                     Object body = response.getBody();
                     requestLog.setResponseBody(body == null ? "" : body.toString());
                 } else {
                     // 如果无法获取到ResponseEntity，按需处置
                     requestLog.setResponseStatus(200);
+                    requestLog.setLogStatus(getLogStatus(200));
                     requestLog.setResponseBody("");
                 }
+            } else if (result instanceof ResponseVO) {
+                ResponseVO<?> response = (ResponseVO<?>) result;
+                requestLog.setResponseStatus(response.getCode());
+                requestLog.setLogStatus(getLogStatus(response.getCode()));
+                Object body = response.getData();
+                requestLog.setResponseBody(
+                        body == null ? "" : body.toString()
+                );
             } else {
                 // 如果返回结果并非ResponseEntity，按需处置
                 requestLog.setResponseStatus(200);
+                requestLog.setLogStatus(getLogStatus(200));
                 requestLog.setResponseBody(
                         result == null ? "" : result.toString()
                 );
@@ -103,5 +117,17 @@ public class RequestLogAspect {
 
     protected SessionWebUserDto getUserInfoFromSession(HttpSession session) {
         return (SessionWebUserDto) session.getAttribute(Constants.SESSION_KEY);
+    }
+
+    protected int getLogStatus(int responseStatus) {
+        if (responseStatus >= 100 && responseStatus < 200) {
+            return 1;
+        } else if (responseStatus < 400) {
+            return 2;
+        } else if (responseStatus < 1000) {
+            return 3;
+        } else {
+            return 4;
+        }
     }
 }

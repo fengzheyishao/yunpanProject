@@ -346,7 +346,7 @@
 				request_time = #{bean.requestTime},
 			</if>
 			<if test="bean.requestSize!=null">
-				request_size = #{bean.requestSize},
+				#{bean.requestSize} >= request_size,
 			</if>
 			<if test="bean.status!=null">
 				status = #{bean.status},

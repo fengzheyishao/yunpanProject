@@ -54,15 +54,24 @@ public class RequestLog implements Serializable {
 	 */
 	private Integer responseStatus;
 
+	private Integer logStatus;
+
 	/**
 	 * 请求时间戳
 	 */
 	private Date timestamp;
 
+	public Integer getLogStatus() {
+		return logStatus;
+	}
+
+	public void setLogStatus(Integer logStatus) {
+		this.logStatus = logStatus;
+	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-
+	
 	public Long getId () {
 		return this.id;
 	}

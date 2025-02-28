@@ -61,10 +61,6 @@ public class RequestLogQuery extends BaseParam{
 	 */
 	private Integer responseStatus;
 
-	private Integer responseStatusMin;
-
-	private Integer responseStatusMax;
-
 	/**
 	 * 请求时间戳
 	 */
@@ -74,20 +70,14 @@ public class RequestLogQuery extends BaseParam{
 
 	private String timestampEnd;
 
-	public Integer getResponseStatusMin() {
-		return responseStatusMin;
+	private Integer logStatus;
+
+	public Integer getLogStatus() {
+		return logStatus;
 	}
 
-	public void setResponseStatusMin(Integer responseStatusMin) {
-		this.responseStatusMin = responseStatusMin;
-	}
-
-	public Integer getResponseStatusMax() {
-		return responseStatusMax;
-	}
-
-	public void setResponseStatusMax(Integer responseStatusMax) {
-		this.responseStatusMax = responseStatusMax;
+	public void setLogStatus(Integer logStatus) {
+		this.logStatus = logStatus;
 	}
 
 	public void setId(Long id) {

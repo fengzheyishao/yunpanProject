@@ -23,11 +23,13 @@
 		<result column="response_status" property="responseStatus"/>
 		<!--请求时间戳-->
 		<result column="timestamp" property="timestamp"/>
+		<!---->
+		<result column="log_status" property="logStatus"/>
 	</resultMap>
 
 	<!--通用查询结果列 -->
 	<sql id="base_column_list">
-		id,user_id,url,method,request_headers,request_body,response_body,response_status,timestamp
+		id,user_id,url,method,request_headers,request_body,response_body,response_status,timestamp,log_status
 	</sql>
 
 	<!--基础查询条件-->
@@ -36,7 +38,7 @@
 			and id= #{query.id}
 		</if>
 		<if test="query.userId!= null and query.userId!=''">
-			and userId= #{query.userId}
+			and user_dd= #{query.userId}
 		</if>
 		<if test="query.url!= null and query.url!=''">
 			and url= #{query.url}
@@ -45,47 +47,41 @@
 			and method= #{query.method}
 		</if>
 		<if test="query.requestHeaders!= null and query.requestHeaders!=''">
-			and requestHeaders= #{query.requestHeaders}
+			and request_headers= #{query.requestHeaders}
 		</if>
 		<if test="query.requestBody!= null and query.requestBody!=''">
-			and requestBody= #{query.requestBody}
+			and request_body= #{query.requestBody}
 		</if>
 		<if test="query.responseBody!= null and query.responseBody!=''">
-			and responseBody= #{query.responseBody}
+			and response_body= #{query.responseBody}
 		</if>
 		<if test="query.responseStatus!= null ">
-			and responseStatus= #{query.responseStatus}
+			and response_status= #{query.responseStatus}
 		</if>
 		<if test="query.timestamp!= null ">
 			and timestamp= #{query.timestamp}
+		</if>
+		<if test="query.logStatus!= null ">
+			and log_status= #{query.logStatus}
 		</if>
 	</sql>
 
 	<!--扩展的查询条件-->
 	<sql id="base_query_condition_extend">
-		<if test="query.responseStatusMin != null and query.responseStatusMin">
-			and responseStatus > ${query.responseStatusMin}
-		</if>
-		<if test="query.responseStatusMax != null and query.responseStatusMax">
-			and ${query.responseStatusMax} > responseStatus
-		</if>
-		<if test="query.userIdFuzzy != null and query.userIdFuzzy !=''">
-			and userIdFuzzy like concat('%', #{query.userIdFuzzy}, '%')
-		</if>
 		<if test="query.urlFuzzy != null and query.urlFuzzy !=''">
-			and urlFuzzy like concat('%', #{query.urlFuzzy}, '%')
+			and url like concat('%', #{query.urlFuzzy}, '%')
 		</if>
 		<if test="query.methodFuzzy != null and query.methodFuzzy !=''">
-			and methodFuzzy like concat('%', #{query.methodFuzzy}, '%')
+			and method like concat('%', #{query.methodFuzzy}, '%')
 		</if>
 		<if test="query.requestHeadersFuzzy != null and query.requestHeadersFuzzy !=''">
-			and requestHeadersFuzzy like concat('%', #{query.requestHeadersFuzzy}, '%')
+			and requestHeaders like concat('%', #{query.requestHeadersFuzzy}, '%')
 		</if>
 		<if test="query.requestBodyFuzzy != null and query.requestBodyFuzzy !=''">
-			and requestBodyFuzzy like concat('%', #{query.requestBodyFuzzy}, '%')
+			and requestBody like concat('%', #{query.requestBodyFuzzy}, '%')
 		</if>
 		<if test="query.responseBodyFuzzy != null and query.responseBodyFuzzy !=''">
-			and responseBodyFuzzy like concat('%', #{query.responseBodyFuzzy}, '%')
+			and responseBody like concat('%', #{query.responseBodyFuzzy}, '%')
 		</if>
 		<if test="query.timestampStart != null and query.timestampStart !=''">
 			<![CDATA[ and timestamp >= str_to_date(#{timestampStart}, 'Y-%m-%d') ]]>
@@ -157,6 +153,9 @@
 			<if test="bean.timestamp != null">
 				timestamp,
 			</if>
+			<if test="bean.logStatus != null">
+				log_status,
+			</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="bean.id != null">
@@ -185,6 +184,9 @@
 			</if>
 			<if test="bean.timestamp != null">
 				#{bean.timestamp},
+			</if>
+			<if test="bean.logStatus != null">
+				#{bean.logStatus},
 			</if>
 		</trim>
 	</insert>
@@ -220,6 +222,9 @@
 			<if test="bean.timestamp != null">
 				timestamp,
 			</if>
+			<if test="bean.logStatus != null">
+				log_status,
+			</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="bean.id != null">
@@ -249,6 +254,9 @@
 			<if test="bean.timestamp != null">
 				#{bean.timestamp},
 			</if>
+			<if test="bean.logStatus != null">
+				#{bean.logStatus},
+			</if>
 		</trim>
 		on DUPLICATE key update
 		<trim prefix="" suffix="" suffixOverrides=",">
@@ -276,14 +284,17 @@
 			<if test="bean.timestamp != null">
 				timestamp = VALUES(timestamp),
 			</if>
+			<if test="bean.logStatus != null">
+				#{bean.logStatus},
+			</if>
 		</trim>
 	</insert>
 
 	<!-- 添加(批量插入) -->
 	<insert id="insertBatch" parameterType="com.yunpan.entity.po.RequestLog" >
-		INSERT INTO request_log(user_id,url,method,request_headers,request_body,response_body,response_status,timestamp) values
-		<foreach collection="list" item = "item" separator="," >
-			(#{item.user_id},#{item.url},#{item.method},#{item.request_headers},#{item.request_body},#{item.response_body},#{item.response_status},#{item.timestamp})
+		INSERT INTO request_log(user_id,url,method,request_headers,request_body,response_body,response_status,timestamp,log_status) values
+		<foreach collection="list" item = "com.yunpan.entity.po.RequestLog" separator="," >
+			(#{item.user_id},#{item.url},#{item.method},#{item.request_headers},#{item.request_body},#{item.response_body},#{item.response_status},#{item.timestamp},#{item.logStatus})
 		</foreach>
 	</insert>
 
@@ -351,7 +362,7 @@
 	</delete>
 
 	<delete id="deleteByQuery">
-		DELETE * FROM request_log
+		DELETE FROM request_log
 		<include refid="query_condition" />
 	</delete>
 </mapper>

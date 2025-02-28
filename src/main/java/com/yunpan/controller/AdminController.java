@@ -5,7 +5,6 @@ import com.yunpan.annotation.VerifyParam;
 import com.yunpan.component.RedisComponent;
 import com.yunpan.entity.dto.SysSettingsDto;
 import com.yunpan.entity.dto.UserMemoryRequestDto;
-import com.yunpan.entity.po.RequestLog;
 import com.yunpan.entity.po.UserMemoryRequest;
 import com.yunpan.entity.query.FileInfoQuery;
 import com.yunpan.entity.query.RequestLogQuery;
@@ -21,14 +20,16 @@ import com.yunpan.service.FileInfoService;
 import com.yunpan.service.RequestLogService;
 import com.yunpan.service.UserInfoService;
 import com.yunpan.service.UserMemoryRequestService;
+import com.yunpan.utils.CopyTools;
 import com.yunpan.utils.StringTools;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController("adminController")
 @RequestMapping("/admin")
@@ -208,7 +209,8 @@ public class AdminController extends CommonFileController{
     @RequestMapping("/selectLog")
     @GlobalInterceptor(checkParams = true, checkAdmin = true)
     public ResponseVO selectLog(RequestLogQuery requestLogQuery) {
-        return getSuccessResponseVO(this.requestLogService.findListByParam(requestLogQuery));
+        requestLogQuery.setOrderBy("timestamp desc");
+        return getSuccessResponseVO(this.requestLogService.findListByPage(requestLogQuery));
     }
 
     @RequestMapping("/deleteRequestLogById")
@@ -227,6 +229,4 @@ public class AdminController extends CommonFileController{
         this.requestLogService.deleteRequestLogByQuery(query);
         return getSuccessResponseVO("删除成功");
     }
-
-
 }
