@@ -71,6 +71,15 @@ public class FileInfoController extends CommonFileController {
 		return getSuccessResponseVO(uploadResultDto);
 	}
 
+	@RequestMapping("/deleteUploadFile")
+	@GlobalInterceptor(checkParams = true)
+	public ResponseVO deleteUploadFile(HttpSession session,
+									   @VerifyParam(required = true) String fileId) {
+		SessionWebUserDto sessionWebUserDto = getUserInfoFromSession(session);
+		fileInfoService.deleteUpload(sessionWebUserDto.getUserId(), fileId);
+		return getSuccessResponseVO("删除成功");
+	}
+
 	@RequestMapping("/getImage/{imageFolder}/{imageName}")
 	public void getImage(HttpServletResponse response, @PathVariable("imageFolder") String imageFolder, @PathVariable("imageName") String imageName) {
 		super.getImage(response, imageFolder, imageName);

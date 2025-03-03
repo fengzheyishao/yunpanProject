@@ -306,6 +306,7 @@ public class FileInfoServiceImpl implements FileInfoService {
 		String targetFilePath = null;
 		String cover = null;
 		FileTypeEnums fileTypeEnum = null;
+		File tempFolder = null;
 		String userId = webUserDto.getUserId();
 		FileInfo fileInfo = this.fileInfoMapper.selectByFileIdAndUserId(fileId, userId);
 		try {
@@ -315,7 +316,7 @@ public class FileInfoServiceImpl implements FileInfoService {
 			//临时目录
 			String tempFilePath = appconfig.getProjectFloder() + Constants.FILE_FOLER_TEMP_NAME;
 			String currentUserFileName = userId + fileId;
-			File tempFolder = new File(tempFilePath + currentUserFileName);
+			tempFolder = new File(tempFilePath + currentUserFileName);
 			if (!tempFolder.exists()) {
 				tempFolder.mkdirs();
 			}
@@ -356,7 +357,13 @@ public class FileInfoServiceImpl implements FileInfoService {
 			updateInfo.setFileCover(cover);
 			updateInfo.setStatus(transferSuccess ? FileStatusEnums.USING.getStatus() : FileStatusEnums.TRANSFER_FAIL.getStatus());
 			fileInfoMapper.updateFileStatusWithOldStatus(fileId, userId, updateInfo, FileStatusEnums.TRANSFER.getStatus());
-
+			try {
+				if (tempFolder != null) {
+					FileUtils.deleteDirectory(tempFolder);
+				}
+			} catch (IOException e) {
+				logger.error("删除临时目录失败");
+			}
 		}
 	}
 
@@ -735,6 +742,21 @@ public class FileInfoServiceImpl implements FileInfoService {
 		}
 		fileTipVO.setAllshowCount(showCount);
 		return fileTipVO;
+	}
+
+	@Override
+	public void deleteUpload(String userId, String fileId) {
+		fileInfoMapper.deleteByFileIdAndUserId(fileId, userId);
+		try {
+			String temp = appconfig.getProjectFloder() + Constants.FILE_FOLER_TEMP_NAME;
+			String currentUserFolderName = userId + fileId;
+			File tempFileFolder = new File(temp + currentUserFolderName);
+			if (tempFileFolder != null) {
+				FileUtils.deleteDirectory(tempFileFolder);
+			}
+		} catch (IOException e) {
+			logger.error("删除临时目录失败");
+		}
 	}
 
 	private void findAllSubFile(List<FileInfo> copyFileList, FileInfo fileInfo, String sourceUserId,

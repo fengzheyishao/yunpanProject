@@ -80,4 +80,6 @@ public interface FileInfoService {
 				   String currentUserId);
 
 	FileTipVO getFileTipInfoByUserId(String userId);
+
+	void deleteUpload(String userId, String fileId);
 }
